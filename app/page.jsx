@@ -1,14 +1,16 @@
-import CountButton from "./count-button"
+import ConnectButton from "./connect-button"
+import ConnectionInfo from "./connection-info"
 
 function Header({ title }) {
     return <h1>{title ? title : "Default title"}</h1>
 }
 
-export default function HomePage() {
+export default async function HomePage() {
     return (
         <div>
             <Header title="init template" />
-            <CountButton />
+            <ConnectButton />
+            <ConnectionInfo />
         </div>
     )
 }

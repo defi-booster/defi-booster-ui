@@ -1,17 +1,23 @@
 {
-  "name": "defi-engine-ui",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "next dev"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "next": "^14.2.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  }
+    "name": "defi-engine-ui",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "next dev"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "@coinbase/wallet-sdk": "^4.0.4",
+        "@uniswap/v3-core": "^1.0.1",
+        "@uniswap/v3-periphery": "^1.4.4",
+        "@web3modal/ethers": "^5.0.6",
+        "ethers": "^6.13.1",
+        "next": "^14.2.4",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "web3modal": "^1.9.12"
+    }
 }
