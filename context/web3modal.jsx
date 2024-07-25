@@ -2,7 +2,7 @@
 
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers/react"
 
-const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
+export const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
 
 // 2. Set chains
 const mainnet = {
@@ -10,7 +10,7 @@ const mainnet = {
     name: "Ethereum",
     currency: "ETH",
     explorerUrl: "https://etherscan.io",
-    rpcUrl: "https://cloudflare-eth.com",
+    rpcUrl: "https://eth.llamarpc.com",
 }
 
 const base = {
@@ -22,10 +22,10 @@ const base = {
 }
 
 const metadata = {
-    name: "defi-engine",
-    description: "defi engine",
-    url: "http://127.0.0.1:3001", // origin must match your domain & subdomain
-    icons: [""],
+    name: "defi_engine",
+    description: "AppKit Example",
+    url: "https://web3modal.com", // origin must match your domain & subdomain
+    icons: ["https://avatars.githubusercontent.com/u/37784886"],
 }
 // 4. Create Ethers config
 const ethersConfig = defaultConfig({
@@ -45,8 +45,8 @@ createWeb3Modal({
     ethersConfig,
     chains: [mainnet, base],
     projectId,
-    enableAnalytics: false, // Optional - defaults to your Cloud configuration
-    enableOnramp: false, // Optional - false as default
+    enableAnalytics: true, // Optional - defaults to your Cloud configuration
+    enableOnramp: true, // Optional - false as default
 })
 
 export function Web3Modal({ children }) {
