@@ -1,0 +1,10 @@
+export const idToContractsAddressesMapping = {
+    1: {
+        NONFUNGIBLE_POSITION_MANAGER_CONTRACT:
+            "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+    },
+    31337: {
+        NONFUNGIBLE_POSITION_MANAGER_CONTRACT:
+            "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+    },
+}

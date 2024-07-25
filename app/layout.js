@@ -1,8 +1,8 @@
 import { Web3Modal } from "../context/web3modal"
 
 export const metadata = {
-    title: "defi-engine",
-    description: "defi-engine",
+    title: "defi_engine",
+    description: "null",
 }
 
 export default function RootLayout({ children }) {
