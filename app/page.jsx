@@ -1,11 +1,11 @@
 import { ConnectButton } from "./components/connect-button"
-import WalletLPList from "./uniswapV3/components/wallet-lp-list"
+import { UniswapV3Page } from "./components/uniswap/uniswap-v3-page"
 
 export default async function HomePage() {
     return (
         <div>
             <ConnectButton />
-            <WalletLPList />
+            <UniswapV3Page />
         </div>
     )
 }
