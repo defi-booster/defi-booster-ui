@@ -7,8 +7,10 @@ import {
 } from "@web3modal/ethers/react"
 import { getNetworkNameFromID } from "../utils/utils"
 import { SupportedChains } from "../utils/enums"
+import { useWeb3StatesContext } from "../../context/web3states"
 
 export const ConnectButton = () => {
+    const [web3State, setWeb3State] = useWeb3StatesContext()
     const [network, setNetwork] = useState<SupportedChains>(
         SupportedChains.Unsupported
     )
@@ -19,6 +21,10 @@ export const ConnectButton = () => {
     useEffect(() => {
         const netName = getNetworkNameFromID(chainId)
         setNetwork(netName)
+        setWeb3State((prev) => ({
+            ...prev,
+            currentNetwork: netName,
+        }))
     }, [chainId])
 
     return (

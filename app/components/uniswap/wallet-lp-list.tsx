@@ -8,8 +8,9 @@ import {
 
 import INONFUNGIBLE_POSITION_MANAGER from "@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json"
 
-import { idToContractsAddressesMapping } from "../utils/mappings"
-import { UniswapV3Contracts } from "../utils/enums"
+import { idToContractsAddressesMapping } from "../../uniswapV3/utils/mappings"
+import { UniswapV3Contracts } from "../../uniswapV3/utils/enums"
+import { SupportedChains } from "../../utils/enums"
 
 interface PositionInfo {
     nonce: bigint
@@ -26,16 +27,19 @@ interface PositionInfo {
     tokensOwed1: bigint
 }
 
-export default function WalletLPList() {
+export function WalletLPList({ network }) {
     const [positions, setPositions] = useState<Array<PositionInfo>>([])
-    const { address, chainId, isConnected } = useWeb3ModalAccount()
+    const { address, chainId } = useWeb3ModalAccount()
     const { walletProvider } = useWeb3ModalProvider()
 
     useEffect(() => {
-        if (isConnected && walletProvider !== undefined) {
+        if (
+            walletProvider !== undefined &&
+            network !== SupportedChains.Unsupported
+        ) {
             const provider = new ethers.BrowserProvider(walletProvider)
 
-            let nfpmAddress
+            let nfpmAddress: string
             try {
                 nfpmAddress =
                     idToContractsAddressesMapping[chainId][
@@ -94,7 +98,7 @@ export default function WalletLPList() {
         }
     })
 
-    return isConnected ? (
+    return network !== SupportedChains.Unsupported ? (
         <div
             style={{
                 border: "1px solid black",
@@ -102,6 +106,7 @@ export default function WalletLPList() {
                 padding: "10px",
             }}
         >
+            <div>network: {network}</div>
             {positions.map((position) => {
                 return (
                     <div
@@ -134,5 +139,7 @@ export default function WalletLPList() {
                 )
             })}
         </div>
-    ) : null
+    ) : (
+        <div>Unsupported network</div>
+    )
 }
