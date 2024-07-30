@@ -1,11 +1,14 @@
-import { ConnectButton } from "./components/connect-button"
-import { UniswapV3Page } from "./components/uniswap/uniswap-v3-page"
+import CountButton from "./count-button"
 
-export default async function HomePage() {
+function Header({ title }) {
+    return <h1>{title ? title : "Default title"}</h1>
+}
+
+export default function HomePage() {
     return (
         <div>
-            <ConnectButton />
-            <UniswapV3Page />
+            <Header title="init template" />
+            <CountButton />
         </div>
     )
 }
