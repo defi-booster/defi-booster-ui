@@ -7,10 +7,14 @@ import {
 } from "@web3modal/ethers/react"
 
 import { SupportedChains } from "../../utils/enums"
-import { getUserPositions, PositionInfo } from "../../uniswapV3/position"
+import { getUserPositions } from "../../uniswapV3/user-position"
+import { PositionData } from "../../uniswapV3/types"
+import { Token } from "@uniswap/sdk-core"
+import { getPoolInfo } from "../../uniswapV3/pool"
+import { fromTicksToHumanReadablePrice } from "../../uniswapV3/utils/math"
 
 export function WalletLPList({ network }) {
-    const [positions, setUserPositions] = useState<Array<PositionInfo>>([])
+    const [positions, setPositionsData] = useState<Array<PositionData>>([])
     const { address, chainId } = useWeb3ModalAccount()
     const { walletProvider } = useWeb3ModalProvider()
 
@@ -22,8 +26,46 @@ export function WalletLPList({ network }) {
             const provider = new ethers.BrowserProvider(walletProvider)
 
             ;(async () => {
-                const infos = await getUserPositions(provider, address, chainId)
-                setUserPositions(infos)
+                let positionDataLst: Array<PositionData> = []
+
+                const userPositionInfos = await getUserPositions(
+                    provider,
+                    address,
+                    chainId
+                )
+
+                for (let i = 0; i < userPositionInfos.length; i++) {
+                    const token0Obj = new Token(
+                        chainId,
+                        userPositionInfos[i].token0Address,
+                        Number(userPositionInfos[i].token0Decimals),
+                        userPositionInfos[i].token0Symbol,
+                        userPositionInfos[i].token0Symbol
+                    )
+
+                    const token1Obj = new Token(
+                        chainId,
+                        userPositionInfos[i].token1Address,
+                        Number(userPositionInfos[i].token1Decimals),
+                        userPositionInfos[i].token1Symbol,
+                        userPositionInfos[i].token1Symbol
+                    )
+
+                    const generalPoolInfo = await getPoolInfo(
+                        provider,
+                        chainId,
+                        token0Obj,
+                        token1Obj,
+                        userPositionInfos[i].fee
+                    )
+
+                    positionDataLst.push({
+                        position: userPositionInfos[i],
+                        pool: generalPoolInfo,
+                    })
+                }
+
+                setPositionsData(positionDataLst)
             })()
         }
     }, [walletProvider, network, chainId, address])
@@ -43,7 +85,7 @@ export function WalletLPList({ network }) {
                     padding: "10px",
                 }}
             >
-                {positions.map((position, index) => {
+                {positions.map((data, index) => {
                     return (
                         <div
                             style={{
@@ -54,15 +96,39 @@ export function WalletLPList({ network }) {
                             key={index}
                         >
                             <p>
-                                token0: {position.token0Symbol}{" "}
-                                {position.token0Address}
+                                token0: {data.position.token0Symbol}{" "}
+                                {data.position.token0Address}
                             </p>
                             <p>
-                                token1: {position.token1Symbol}{" "}
-                                {position.token1Address}
+                                token1: {data.position.token1Symbol}{" "}
+                                {data.position.token1Address}
                             </p>
-                            <p>fee: {Number(position.fee) / 10000} %</p>
-                            <p>liquidity: {Number(position.liquidity)}</p>
+                            <p>fee: {Number(data.position.fee) / 10000} %</p>
+                            <p>liquidity: {Number(data.position.liquidity)}</p>
+                            <p>
+                                current price:{" "}
+                                {
+                                    fromTicksToHumanReadablePrice(
+                                        Number(data.pool.tick),
+                                        Number(data.position.token0Decimals),
+                                        Number(data.position.token1Decimals)
+                                    ).token0Token1Price
+                                }
+                                {data.position.token0Symbol}/
+                                {data.position.token1Symbol}
+                            </p>
+                            <p>
+                                current price:{" "}
+                                {
+                                    fromTicksToHumanReadablePrice(
+                                        Number(data.pool.tick),
+                                        Number(data.position.token0Decimals),
+                                        Number(data.position.token1Decimals)
+                                    ).token1Token0Price
+                                }
+                                {data.position.token1Symbol}/
+                                {data.position.token0Symbol}
+                            </p>
                             <div
                                 style={{
                                     border: "1px solid black",
@@ -78,19 +144,40 @@ export function WalletLPList({ network }) {
                                     }}
                                 >
                                     <p>
-                                        tick lower: {Number(position.tickLower)}
+                                        tick lower:{" "}
+                                        {Number(data.position.tickLower)}
                                     </p>
                                     <p>
                                         range price calculated from tick lower:{" "}
-                                        {position.token0PerToken1PriceLower}{" "}
-                                        {position.token0Symbol}/
-                                        {position.token1Symbol}
+                                        {
+                                            fromTicksToHumanReadablePrice(
+                                                Number(data.position.tickLower),
+                                                Number(
+                                                    data.position.token0Decimals
+                                                ),
+                                                Number(
+                                                    data.position.token1Decimals
+                                                )
+                                            ).token0Token1Price
+                                        }
+                                        {data.position.token0Symbol}/
+                                        {data.position.token1Symbol}
                                     </p>
                                     <p>
                                         range price calculated from tick lower:{" "}
-                                        {position.token1PerToken0PriceLower}{" "}
-                                        {position.token1Symbol}/
-                                        {position.token0Symbol}
+                                        {
+                                            fromTicksToHumanReadablePrice(
+                                                Number(data.position.tickLower),
+                                                Number(
+                                                    data.position.token0Decimals
+                                                ),
+                                                Number(
+                                                    data.position.token1Decimals
+                                                )
+                                            ).token1Token0Price
+                                        }
+                                        {data.position.token1Symbol}/
+                                        {data.position.token0Symbol}
                                     </p>
                                 </div>
                                 <div
@@ -101,29 +188,50 @@ export function WalletLPList({ network }) {
                                     }}
                                 >
                                     <p>
-                                        tick upper: {Number(position.tickUpper)}
+                                        tick upper:{" "}
+                                        {Number(data.position.tickUpper)}
                                     </p>
                                     <p>
                                         range price calculated from tick upper:{" "}
-                                        {position.token0PerToken1PriceUpper}{" "}
-                                        {position.token0Symbol}/
-                                        {position.token1Symbol}
+                                        {
+                                            fromTicksToHumanReadablePrice(
+                                                Number(data.position.tickLower),
+                                                Number(
+                                                    data.position.token0Decimals
+                                                ),
+                                                Number(
+                                                    data.position.token1Decimals
+                                                )
+                                            ).token0Token1Price
+                                        }
+                                        {data.position.token0Symbol}/
+                                        {data.position.token1Symbol}
                                     </p>
                                     <p>
                                         range price calculated from tick upper:{" "}
-                                        {position.token1PerToken0PriceUpper}{" "}
-                                        {position.token1Symbol}/
-                                        {position.token0Symbol}
+                                        {
+                                            fromTicksToHumanReadablePrice(
+                                                Number(data.position.tickLower),
+                                                Number(
+                                                    data.position.token0Decimals
+                                                ),
+                                                Number(
+                                                    data.position.token1Decimals
+                                                )
+                                            ).token1Token0Price
+                                        }
+                                        {data.position.token1Symbol}
+                                        {data.position.token0Symbol}
                                     </p>
                                 </div>
                             </div>
                             <p>
                                 token0 fees collected:{" "}
-                                {Number(position.tokensOwed0)}
+                                {Number(data.position.tokensOwed0)}
                             </p>
                             <p>
                                 token1 fees collected:{" "}
-                                {Number(position.tokensOwed1)}
+                                {Number(data.position.tokensOwed1)}
                             </p>
                         </div>
                     )
