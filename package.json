@@ -11,13 +11,18 @@
     "description": "",
     "dependencies": {
         "@coinbase/wallet-sdk": "^4.0.4",
+        "@nextui-org/react": "^2.4.6",
         "@uniswap/sdk-core": "^5.3.1",
         "@uniswap/v3-core": "^1.0.1",
         "@uniswap/v3-periphery": "^1.4.4",
         "@uniswap/v3-sdk": "^3.13.1",
+        "@web3icons/core": "^3.2.1",
+        "@web3icons/react": "^3.2.1",
         "@web3modal/ethers": "^5.0.6",
         "ethers": "^6.13.1",
+        "framer-motion": "^11.3.24",
         "next": "^14.2.4",
+        "next-themes": "^0.3.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "web3modal": "^1.9.12"
@@ -28,6 +33,9 @@
         "@types/react-dom": "^18.3.0",
         "@typescript-eslint/eslint-plugin": "^7.13.1",
         "@typescript-eslint/parser": "^7.13.1",
+        "autoprefixer": "^10.4.20",
+        "postcss": "^8.4.41",
+        "tailwindcss": "^3.4.9",
         "typescript": "^5.5.3"
     }
 }

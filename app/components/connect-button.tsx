@@ -1,5 +1,6 @@
 "use client"
 import React, { useEffect, useState } from "react"
+import { Button } from "@nextui-org/react"
 import {
     useWeb3Modal,
     useDisconnect,
@@ -31,13 +32,18 @@ export const ConnectButton = () => {
         <div>
             {isConnected ? (
                 <div>
-                    <button onClick={() => disconnect()}>
+                    <Button
+                        color="primary"
+                        variant="ghost"
+                        onClick={() => disconnect()}
+                    >
                         {address.slice(0, 5) + "..." + address.slice(-4)}
-                    </button>
-                    <p>network: {network}</p>
+                    </Button>
                 </div>
             ) : (
-                <button onClick={() => open()}>connect</button>
+                <Button color="primary" variant="ghost" onClick={() => open()}>
+                    connect
+                </Button>
             )}
         </div>
     )
