@@ -12,8 +12,6 @@ import {
     CardBody,
     CardFooter,
     Divider,
-    Link,
-    Image,
     Button,
 } from "@nextui-org/react"
 
@@ -38,7 +36,6 @@ export function WalletLPList({ network }) {
 
             ;(async () => {
                 let positionDataLst: Array<PositionData> = []
-
                 const userPositionInfos = await getUserPositions(
                     provider,
                     address,
@@ -79,7 +76,7 @@ export function WalletLPList({ network }) {
                 setPositionsData(positionDataLst)
             })()
         }
-    }, [walletProvider, network, chainId, address])
+    }, [walletProvider, network, address])
 
     const isTicksInRange = (
         tickLower: number,

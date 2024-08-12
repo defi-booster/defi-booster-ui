@@ -18,23 +18,16 @@ import {
 } from "@nextui-org/react"
 
 import { useWeb3ModalAccount } from "@web3modal/ethers/react"
-import { SupportedChains } from "../utils/enums"
-import { getNetworkNameFromID } from "../utils/utils"
+import { useWeb3StatesContext } from "../../context/web3states"
 import { chainIdToIcon } from "../utils/mappings"
 
 export const Nav = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-    const { isConnected, address, chainId } = useWeb3ModalAccount()
-    const [network, setNetwork] = useState<SupportedChains>(
-        SupportedChains.Unsupported
-    )
+    const [web3State] = useWeb3StatesContext()
+
+    const { chainId } = useWeb3ModalAccount()
 
     const menuItems = ["Profile", "Dashboard", <ThemeSwitcher />]
-
-    useEffect(() => {
-        const netName = getNetworkNameFromID(chainId)
-        setNetwork(netName)
-    }, [chainId])
 
     return (
         <Navbar
@@ -73,7 +66,7 @@ export const Nav = () => {
                     <ConnectButton />
                 </NavbarItem>
                 <NavbarItem>
-                    <Tooltip content={network}>
+                    <Tooltip content={web3State.currentNetwork}>
                         {chainIdToIcon(chainId)}
                     </Tooltip>
                 </NavbarItem>
