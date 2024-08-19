@@ -20,7 +20,12 @@ import { getUserPositions } from "../../uniswapV3/user-position"
 import { PositionData } from "../../uniswapV3/types"
 import { Token } from "@uniswap/sdk-core"
 import { getPoolInfo } from "../../uniswapV3/pool"
-import { fromTicksToHumanReadablePrice } from "../../uniswapV3/utils/math"
+import {
+    fromTicksToHumanReadablePrice,
+    fromsqrtPriceX96ToHumanReadable,
+    calculateCurrentReserves,
+    isInRange,
+} from "../../uniswapV3/utils/math"
 
 export function WalletLPList({ network }) {
     const [positions, setPositionsData] = useState<Array<PositionData>>([])
@@ -36,6 +41,7 @@ export function WalletLPList({ network }) {
 
             ;(async () => {
                 let positionDataLst: Array<PositionData> = []
+
                 const userPositionInfos = await getUserPositions(
                     provider,
                     address,
@@ -72,25 +78,10 @@ export function WalletLPList({ network }) {
                         pool: generalPoolInfo,
                     })
                 }
-
                 setPositionsData(positionDataLst)
             })()
         }
     }, [walletProvider, network, address])
-
-    const isTicksInRange = (
-        tickLower: number,
-        tickCurrent: number,
-        tickUpper: number
-    ) => {
-        const value1 = tickCurrent - tickLower
-        const value2 = tickCurrent - tickUpper
-        if (value1 >= 0 && value2 <= 0) {
-            return true
-        } else {
-            return false
-        }
-    }
 
     return network !== SupportedChains.Unsupported ? (
         <div
@@ -121,25 +112,61 @@ export function WalletLPList({ network }) {
                             <p>current price:</p>
                             <p>
                                 {
-                                    fromTicksToHumanReadablePrice(
-                                        Number(data.pool.tick),
-                                        Number(data.position.token0Decimals),
-                                        Number(data.position.token1Decimals)
+                                    fromsqrtPriceX96ToHumanReadable(
+                                        data.pool.sqrtPriceX96,
+                                        data.position.token0Decimals,
+                                        data.position.token1Decimals
                                     ).token0Token1Price
                                 }{" "}
                                 {data.position.token0Symbol}/
                                 {data.position.token1Symbol}
                             </p>
                             <p>
+                                {" "}
                                 {
-                                    fromTicksToHumanReadablePrice(
-                                        Number(data.pool.tick),
-                                        Number(data.position.token0Decimals),
-                                        Number(data.position.token1Decimals)
+                                    fromsqrtPriceX96ToHumanReadable(
+                                        data.pool.sqrtPriceX96,
+                                        data.position.token0Decimals,
+                                        data.position.token1Decimals
                                     ).token1Token0Price
                                 }{" "}
                                 {data.position.token1Symbol}/
                                 {data.position.token0Symbol}
+                            </p>
+                        </CardBody>
+                        <Divider />
+                        <CardBody>
+                            supplied liquidity:{" "}
+                            {Number(data.position.liquidity)}
+                        </CardBody>
+                        <Divider />
+                        <CardBody>
+                            <p>current reserves:</p>
+                            <p>
+                                {
+                                    calculateCurrentReserves(
+                                        data.position.liquidity,
+                                        data.pool.sqrtPriceX96,
+                                        Number(data.position.tickLower),
+                                        Number(data.position.tickUpper),
+                                        6,
+                                        18
+                                    )[0]
+                                }{" "}
+                                {data.position.token0Symbol}
+                            </p>
+                            <p>
+                                {
+                                    calculateCurrentReserves(
+                                        data.position.liquidity,
+                                        data.pool.sqrtPriceX96,
+                                        Number(data.position.tickLower),
+                                        Number(data.position.tickUpper),
+                                        6,
+                                        18
+                                    )[1]
+                                }{" "}
+                                {data.position.token1Symbol}
                             </p>
                         </CardBody>
                         <Divider />
@@ -189,7 +216,7 @@ export function WalletLPList({ network }) {
                         </CardBody>
                         <Divider />
                         <CardFooter>
-                            {isTicksInRange(
+                            {isInRange(
                                 Number(data.position.tickLower),
                                 Number(data.pool.tick),
                                 Number(data.position.tickUpper)
