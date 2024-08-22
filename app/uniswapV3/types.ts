@@ -1,3 +1,4 @@
+// data from UniswapV3Pool contract
 export interface GeneralPoolInfo {
     token0Address: string
     token1Address: string
@@ -6,11 +7,16 @@ export interface GeneralPoolInfo {
     liquidity: bigint
     sqrtPriceX96: bigint
     tick: bigint
+    feeGrowthGlobalX128_0: bigint
+    feeGrowthGlobalX128_1: bigint
+    tickUpperFeeGrowthOutsideX128_0: bigint
+    tickUpperFeeGrowthOutsideX128_1: bigint
+    tickLowerFeeGrowthOutsideX128_0: bigint
+    tickLowerFeeGrowthOutsideX128_1: bigint
 }
 
+// data from NonfungiblePositionManager contract
 export interface UserPositionInfo {
-    // nonce: bigint // the nonce for permits
-    // operator: string // the address that is approved for spending
     token0Address: string
     token1Address: string
     token0Symbol: string
@@ -21,10 +27,10 @@ export interface UserPositionInfo {
     tickLower: bigint
     tickUpper: bigint
     liquidity: bigint
-    feeGrowthInside0LastX128: bigint // fee growth of token0 inside the tick range as of the last mint/burn/poke,
-    feeGrowthInside1LastX128: bigint // fee growth of token1 inside the tick range as of the last mint/burn/poke,
-    tokensOwed0: bigint // the computed amount of token0 owed to the position as of the last mint/burn/poke
-    tokensOwed1: bigint // the computed amount of token1 owed to the position as of the last mint/burn/poke
+    feeGrowthInsideLastX128_0: bigint
+    feeGrowthInsideLastX128_1: bigint
+    tokensOwed0: bigint
+    tokensOwed1: bigint
 }
 
 export interface PositionData {
