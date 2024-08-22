@@ -76,8 +76,8 @@ export async function getUserPositions(
             liquidity: position.liquidity,
             tokensOwed0: position.tokensOwed0,
             tokensOwed1: position.tokensOwed1,
-            feeGrowthInside0LastX128: position.feeGrowthInside0LastX128,
-            feeGrowthInside1LastX128: position.feeGrowthInside1LastX128,
+            feeGrowthInsideLastX128_0: position.feeGrowthInside0LastX128,
+            feeGrowthInsideLastX128_1: position.feeGrowthInside1LastX128,
         }
     })
 

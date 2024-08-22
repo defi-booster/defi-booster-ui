@@ -3,6 +3,12 @@ interface PricesInfo {
     token1Token0Price: number
 }
 
+// constants
+const ZERO = 0n
+const Q96 = 2 ** 96
+const Q128 = 2n ** 128n
+const Q256 = 2n ** 256n
+
 export function fromTicksToHumanReadablePrice(
     ticks: number,
     decimals0: number,
@@ -56,10 +62,10 @@ export function fromsqrtPriceX96ToHumanReadable(
     }
 }
 
-export function calculateCurrentReserves(
+export function calcCurrentReserves(
     suppliedLiquidity: bigint,
     sqrtPriceX96: bigint,
-    tickLow: number,
+    tickLower: number,
     tickUpper: number,
     decimals0: number,
     decimals1: number
@@ -74,24 +80,23 @@ export function calculateCurrentReserves(
      * @param {number} decimals0
      * @param {number} decimals1
      */
-    const Q96 = 2 ** 96
-    let sqrtRatioA = Math.sqrt(1.0001 ** tickLow)
+    let sqrtRatioA = Math.sqrt(1.0001 ** tickLower)
     let sqrtRatioB = Math.sqrt(1.0001 ** tickUpper)
-    let currentTick = sqrtPriceX96ToTicks(sqrtPriceX96)
+    let tickCurrent = sqrtPriceX96ToTicks(sqrtPriceX96)
     let sqrtPrice = Number(sqrtPriceX96) / Q96
     let amount0 = 0
     let amount1 = 0
 
-    if (currentTick < tickLow) {
+    if (tickCurrent < tickLower) {
         amount0 = Math.floor(
             Number(suppliedLiquidity) *
                 ((sqrtRatioB - sqrtRatioA) / (sqrtRatioA * sqrtRatioB))
         )
-    } else if (currentTick >= tickUpper) {
+    } else if (tickCurrent >= tickUpper) {
         amount1 = Math.floor(
             Number(suppliedLiquidity) * (sqrtRatioB - sqrtRatioA)
         )
-    } else if (currentTick >= tickLow && currentTick < tickUpper) {
+    } else if (tickCurrent >= tickLower && tickCurrent < tickUpper) {
         amount0 = Math.floor(
             Number(suppliedLiquidity) *
                 ((sqrtRatioB - sqrtPrice) / (sqrtPrice * sqrtRatioB))
@@ -101,10 +106,10 @@ export function calculateCurrentReserves(
         )
     }
 
-    let amount0Human = (amount0 / 10 ** decimals0).toFixed(decimals0)
-    let amount1Human = (amount1 / 10 ** decimals1).toFixed(decimals1)
+    let amountHuman_0 = (amount0 / 10 ** decimals0).toFixed(decimals0)
+    let amountHuman_1 = (amount1 / 10 ** decimals1).toFixed(decimals1)
 
-    return [amount0Human, amount1Human]
+    return [amountHuman_0, amountHuman_1]
 }
 
 export function sqrtPriceX96ToTicks(sqrtPriceX96: bigint) {
@@ -132,4 +137,116 @@ export function isInRange(i_l: number, i_c: number, i_u: number) {
     } else {
         return false
     }
+}
+
+function _subIn256(x: bigint, y: bigint) {
+    const difference = x - y
+    if (difference < ZERO) {
+        return Q256 - difference
+    } else {
+        return difference
+    }
+}
+
+export function calcUncollectedFees(
+    suppliedLiquidity: bigint,
+    feeGrowthGlobalX128_0: bigint,
+    feeGrowthGlobalX128_1: bigint,
+    tickUpperFeeGrowthOutsideX128_0: bigint,
+    tickUpperFeeGrowthOutsideX128_1: bigint,
+    tickLowerFeeGrowthOutsideX128_0: bigint,
+    tickLowerFeeGrowthOutsideX128_1: bigint,
+    feeGrowthInsideLastX128_0: bigint,
+    feeGrowthInsideLastX128_1: bigint,
+    tickUpper: number,
+    tickLower: number,
+    tickCurrent: number,
+    decimals0: number,
+    decimals1: number
+) {
+    /**
+     * @notice calculate uncollected fees
+     * @dev
+     * @param {bigint} suppliedLiquidity
+     * @param {bigint} feeGrowthGlobalX128_0
+     * @param {bigint} feeGrowthGlobalX128_1
+     * @param {bigint} tickUpperFeeGrowthOutsideX128_0
+     * @param {bigint} tickUpperFeeGrowthOutsideX128_1
+     * @param {bigint} tickLowerFeeGrowthOutsideX128_0
+     * @param {bigint} tickLowerFeeGrowthOutsideX128_1
+     * @param {bigint} feeGrowthInsideLastX128_0
+     * @param {bigint} feeGrowthInsideLastX128_1
+     * @param {number} tickUpper
+     * @param {number} tickLower
+     * @param {number} tickCurrent
+     * @param {number} decimals0
+     * @param {number} decimals1
+     */
+
+    let tickLowerFeeGrowthBelow_0 = ZERO
+    let tickLowerFeeGrowthBelow_1 = ZERO
+    let tickUpperFeeGrowthAbove_0 = ZERO
+    let tickUpperFeeGrowthAbove_1 = ZERO
+
+    // there is different math needed if the position is in or out of range
+    // If current tick is above the range fg- fo,iu Growth Above range
+    if (tickCurrent >= tickUpper) {
+        tickUpperFeeGrowthAbove_0 = _subIn256(
+            feeGrowthGlobalX128_0,
+            tickUpperFeeGrowthOutsideX128_0
+        )
+        tickUpperFeeGrowthAbove_1 = _subIn256(
+            feeGrowthGlobalX128_1,
+            tickUpperFeeGrowthOutsideX128_1
+        )
+    } else {
+        // Else if current tick is in range only need fg for upper growth
+        tickUpperFeeGrowthAbove_0 = tickUpperFeeGrowthOutsideX128_0
+        tickUpperFeeGrowthAbove_1 = tickUpperFeeGrowthOutsideX128_1
+    }
+    // If current tick is in range  only need fg for lower growth
+    if (tickCurrent >= tickLower) {
+        tickLowerFeeGrowthBelow_0 = tickLowerFeeGrowthOutsideX128_0
+        tickLowerFeeGrowthBelow_1 = tickLowerFeeGrowthOutsideX128_1
+    } else {
+        // If current tick is above the range fg- fo,il Growth below range
+        tickLowerFeeGrowthBelow_0 = _subIn256(
+            feeGrowthGlobalX128_0,
+            tickLowerFeeGrowthOutsideX128_0
+        )
+        tickLowerFeeGrowthBelow_1 = _subIn256(
+            feeGrowthGlobalX128_1,
+            tickLowerFeeGrowthOutsideX128_1
+        )
+    }
+
+    // fr(t1) for both token0 and token1
+    let fr_t1_0 = _subIn256(
+        _subIn256(feeGrowthGlobalX128_0, tickLowerFeeGrowthBelow_0),
+        tickUpperFeeGrowthAbove_0
+    )
+    let fr_t1_1 = _subIn256(
+        _subIn256(feeGrowthGlobalX128_1, tickLowerFeeGrowthBelow_1),
+        tickUpperFeeGrowthAbove_1
+    )
+
+    // The final calculations uncollected fees formula
+    // for both token 0 and token 1 since we now know everything that is needed to compute it
+    // subtracting the two values and then multiplying with liquidity l *(fr(t1) - fr(t0))
+    let uncollectedFees_0 =
+        (suppliedLiquidity * _subIn256(fr_t1_0, feeGrowthInsideLastX128_0)) /
+        Q128
+    let uncollectedFees_1 =
+        (suppliedLiquidity * _subIn256(fr_t1_1, feeGrowthInsideLastX128_1)) /
+        Q128
+
+    // decimal adjustment to get final results
+    let uncollectedFeesHuman_0 = Number(
+        uncollectedFees_0 / BigInt(10 ** decimals0)
+    ).toFixed(decimals0)
+    let uncollectedFeesHuman_1 = Number(
+        uncollectedFees_1 / BigInt(10 ** decimals1)
+    ).toFixed(decimals1)
+
+    return [uncollectedFeesHuman_0, uncollectedFeesHuman_1]
 }

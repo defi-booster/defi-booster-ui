@@ -23,7 +23,8 @@ import { getPoolInfo } from "../../uniswapV3/pool"
 import {
     fromTicksToHumanReadablePrice,
     fromsqrtPriceX96ToHumanReadable,
-    calculateCurrentReserves,
+    calcCurrentReserves,
+    calcUncollectedFees,
     isInRange,
 } from "../../uniswapV3/utils/math"
 
@@ -70,7 +71,9 @@ export function WalletLPList({ network }) {
                         chainId,
                         token0Obj,
                         token1Obj,
-                        userPositionInfos[i].fee
+                        userPositionInfos[i].fee,
+                        Number(userPositionInfos[i].tickUpper),
+                        Number(userPositionInfos[i].tickLower)
                     )
 
                     positionDataLst.push({
@@ -94,7 +97,7 @@ export function WalletLPList({ network }) {
         >
             {positions.map((data, index) => {
                 return (
-                    <Card className="max-w-[400px]">
+                    <Card className="max-w-[400px]" key={index}>
                         <CardHeader className="flex gap-3">
                             <p>🦄</p>
                             <div className="flex flex-col">
@@ -144,7 +147,7 @@ export function WalletLPList({ network }) {
                             <p>current reserves:</p>
                             <p>
                                 {
-                                    calculateCurrentReserves(
+                                    calcCurrentReserves(
                                         data.position.liquidity,
                                         data.pool.sqrtPriceX96,
                                         Number(data.position.tickLower),
@@ -157,7 +160,7 @@ export function WalletLPList({ network }) {
                             </p>
                             <p>
                                 {
-                                    calculateCurrentReserves(
+                                    calcCurrentReserves(
                                         data.position.liquidity,
                                         data.pool.sqrtPriceX96,
                                         Number(data.position.tickLower),
@@ -212,6 +215,60 @@ export function WalletLPList({ network }) {
                                 }
                                 {data.position.token1Symbol}/
                                 {data.position.token0Symbol}
+                            </p>
+                        </CardBody>
+                        <Divider />
+                        <CardBody>
+                            <p>uncollected fees:</p>
+                            <p>
+                                {
+                                    calcUncollectedFees(
+                                        data.position.liquidity,
+                                        data.pool.feeGrowthGlobalX128_0,
+                                        data.pool.feeGrowthGlobalX128_1,
+                                        data.pool
+                                            .tickUpperFeeGrowthOutsideX128_0,
+                                        data.pool
+                                            .tickUpperFeeGrowthOutsideX128_1,
+                                        data.pool
+                                            .tickLowerFeeGrowthOutsideX128_0,
+                                        data.pool
+                                            .tickLowerFeeGrowthOutsideX128_1,
+                                        data.position.feeGrowthInsideLastX128_0,
+                                        data.position.feeGrowthInsideLastX128_1,
+                                        Number(data.position.tickUpper),
+                                        Number(data.position.tickLower),
+                                        Number(data.pool.tick),
+                                        Number(data.position.token0Decimals),
+                                        Number(data.position.token1Decimals)
+                                    )[0]
+                                }{" "}
+                                {data.position.token0Symbol}
+                            </p>
+                            <p>
+                                {
+                                    calcUncollectedFees(
+                                        data.position.liquidity,
+                                        data.pool.feeGrowthGlobalX128_0,
+                                        data.pool.feeGrowthGlobalX128_1,
+                                        data.pool
+                                            .tickUpperFeeGrowthOutsideX128_0,
+                                        data.pool
+                                            .tickUpperFeeGrowthOutsideX128_1,
+                                        data.pool
+                                            .tickLowerFeeGrowthOutsideX128_0,
+                                        data.pool
+                                            .tickLowerFeeGrowthOutsideX128_1,
+                                        data.position.feeGrowthInsideLastX128_0,
+                                        data.position.feeGrowthInsideLastX128_1,
+                                        Number(data.position.tickUpper),
+                                        Number(data.position.tickLower),
+                                        Number(data.pool.tick),
+                                        Number(data.position.token0Decimals),
+                                        Number(data.position.token1Decimals)
+                                    )[1]
+                                }{" "}
+                                {data.position.token1Symbol}
                             </p>
                         </CardBody>
                         <Divider />

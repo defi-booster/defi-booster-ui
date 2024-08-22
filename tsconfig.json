@@ -12,7 +12,7 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "jsx": "preserve",
-        "target": "es2020",
+        "target": "es2021",
         "plugins": [
             {
                 "name": "next"
