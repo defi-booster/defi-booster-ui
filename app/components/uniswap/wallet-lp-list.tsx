@@ -27,6 +27,11 @@ import {
     calcUncollectedFees,
     isInRange,
 } from "../../uniswapV3/utils/math"
+import {
+    getNonFungiblePositionManagerContract,
+    getPoolContract,
+} from "../../uniswapV3/utils/get-contracts"
+import { getPoolMintingDate } from "../../uniswapV3/position-livecycle"
 
 export function WalletLPList({ network }) {
     const [positions, setPositionsData] = useState<Array<PositionData>>([])
@@ -43,10 +48,22 @@ export function WalletLPList({ network }) {
             ;(async () => {
                 let positionDataLst: Array<PositionData> = []
 
+                const nfpmContract = getNonFungiblePositionManagerContract(
+                    provider,
+                    chainId
+                )
+
                 const userPositionInfos = await getUserPositions(
                     provider,
                     address,
-                    chainId
+                    nfpmContract
+                )
+
+                const positionMintInfos = await getPoolMintingDate(
+                    provider,
+                    chainId,
+                    nfpmContract,
+                    address
                 )
 
                 for (let i = 0; i < userPositionInfos.length; i++) {
@@ -66,19 +83,40 @@ export function WalletLPList({ network }) {
                         userPositionInfos[i].token1Symbol
                     )
 
-                    const generalPoolInfo = await getPoolInfo(
+                    const poolContract = getPoolContract(
                         provider,
                         chainId,
                         token0Obj,
                         token1Obj,
-                        userPositionInfos[i].fee,
+                        userPositionInfos[i].fee
+                    )
+                    const generalPoolInfo = await getPoolInfo(
+                        poolContract,
                         Number(userPositionInfos[i].tickUpper),
                         Number(userPositionInfos[i].tickLower)
                     )
 
+                    const positionMintInfo = positionMintInfos.filter(
+                        (mintInfo) =>
+                            mintInfo.tokenId === userPositionInfos[i].tokenId
+                    )
+
+                    if (positionMintInfo.length !== userPositionInfos.length) {
+                        console.error(
+                            "mint infos and position infos lengths not match!"
+                        )
+                    }
+
+                    if (positionMintInfo.length === 0) {
+                        console.error(
+                            `can't find mint info associated with tokenId ${userPositionInfos[i].tokenId}!`
+                        )
+                    }
+
                     positionDataLst.push({
                         position: userPositionInfos[i],
                         pool: generalPoolInfo,
+                        positionMintInfo: positionMintInfo[0],
                     })
                 }
                 setPositionsData(positionDataLst)
@@ -152,8 +190,8 @@ export function WalletLPList({ network }) {
                                         data.pool.sqrtPriceX96,
                                         Number(data.position.tickLower),
                                         Number(data.position.tickUpper),
-                                        6,
-                                        18
+                                        Number(data.position.token0Decimals),
+                                        Number(data.position.token1Decimals)
                                     )[0]
                                 }{" "}
                                 {data.position.token0Symbol}
@@ -165,8 +203,8 @@ export function WalletLPList({ network }) {
                                         data.pool.sqrtPriceX96,
                                         Number(data.position.tickLower),
                                         Number(data.position.tickUpper),
-                                        6,
-                                        18
+                                        Number(data.position.token0Decimals),
+                                        Number(data.position.token1Decimals)
                                     )[1]
                                 }{" "}
                                 {data.position.token1Symbol}
@@ -269,6 +307,33 @@ export function WalletLPList({ network }) {
                                     )[1]
                                 }{" "}
                                 {data.position.token1Symbol}
+                            </p>
+                        </CardBody>
+                        <Divider />
+                        <CardBody>
+                            <p>tokenId: {Number(data.position.tokenId)}</p>
+                            <p>
+                                position minted on block number:{" "}
+                                {data.positionMintInfo.blockNumber}
+                            </p>
+                            <p>mint date: {data.positionMintInfo.date}</p>
+                            <p>
+                                token0 supplied after position minted:{" "}
+                                {ethers.formatUnits(
+                                    Number(data.positionMintInfo.token0Amount),
+                                    Number(data.position.token0Decimals)
+                                )}
+                            </p>
+                            <p>
+                                token1 supplied after position minted:{" "}
+                                {ethers.formatUnits(
+                                    Number(
+                                        Number(
+                                            data.positionMintInfo.token1Amount
+                                        )
+                                    ),
+                                    Number(data.position.token1Decimals)
+                                )}
                             </p>
                         </CardBody>
                         <Divider />

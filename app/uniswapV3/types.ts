@@ -17,6 +17,7 @@ export interface GeneralPoolInfo {
 
 // data from NonfungiblePositionManager contract
 export interface UserPositionInfo {
+    tokenId: bigint
     token0Address: string
     token1Address: string
     token0Symbol: string
@@ -33,7 +34,17 @@ export interface UserPositionInfo {
     tokensOwed1: bigint
 }
 
+// data from scanning Transfer event on NonfungiblePositionManager contract from adress 0x0 to wallet
+export interface PositionMintInfo {
+    blockNumber: bigint
+    date: string
+    tokenId: bigint
+    token0Amount: bigint
+    token1Amount: bigint
+}
+
 export interface PositionData {
     position: UserPositionInfo
     pool: GeneralPoolInfo
+    positionMintInfo: PositionMintInfo
 }
