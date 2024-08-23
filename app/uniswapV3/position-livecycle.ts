@@ -1,6 +1,6 @@
 import { ethers } from "ethers"
 
-import { PositionMintInfo } from "./types"
+import { PositionMintInfo } from "./utils/types"
 import { idToNonfungiblePostionManagerContractCreationBlockMapping } from "./utils/mappings"
 
 export async function getPoolMintingDate(
@@ -9,62 +9,70 @@ export async function getPoolMintingDate(
     nfpmContract: ethers.Contract,
     address: string
 ): Promise<PositionMintInfo[]> {
-    const startBlock =
-        idToNonfungiblePostionManagerContractCreationBlockMapping[chainId]
-    const endBlock = await provider.getBlockNumber()
-    let currentStartBlock = startBlock
-    const maxBlockRequests = 20000
-    const positionMintInfos = []
+    try {
+        const startBlock =
+            idToNonfungiblePostionManagerContractCreationBlockMapping[chainId]
+        const endBlock = await provider.getBlockNumber()
+        let currentStartBlock = startBlock
+        const maxBlockRequests = 20000
+        const positionMintInfos = []
 
-    const filter = nfpmContract.filters.Transfer(
-        "0x0000000000000000000000000000000000000000",
-        address
-    )
-
-    while (currentStartBlock <= endBlock) {
-        const currentEndBlock = Math.min(
-            currentStartBlock + maxBlockRequests - 1,
-            endBlock
-        )
-        const events = await nfpmContract.queryFilter(
-            filter,
-            currentStartBlock,
-            currentEndBlock
+        const filter = nfpmContract.filters.Transfer(
+            "0x0000000000000000000000000000000000000000",
+            address
         )
 
-        for (const event of events) {
-            // @ts-ignore
-            const tokenId = event.args.tokenId.toString()
-            const increaseLiquidityFilter =
-                nfpmContract.filters.IncreaseLiquidity(tokenId)
-
-            const liquidityEvents = await nfpmContract.queryFilter(
-                increaseLiquidityFilter,
-                event.blockNumber,
-                event.blockNumber
+        while (currentStartBlock <= endBlock) {
+            const currentEndBlock = Math.min(
+                currentStartBlock + maxBlockRequests - 1,
+                endBlock
+            )
+            const events = await nfpmContract.queryFilter(
+                filter,
+                currentStartBlock,
+                currentEndBlock
             )
 
-            if (liquidityEvents.length > 0) {
-                // at minting moment there should be only one IncreaseLiquidity event
-                const liquidityEvent = liquidityEvents[0]
+            for (const event of events) {
+                // @ts-ignore
+                const tokenId = event.args.tokenId.toString()
+                const increaseLiquidityFilter =
+                    nfpmContract.filters.IncreaseLiquidity(tokenId)
 
-                const block = await provider.getBlock(event.blockNumber)
-                const timestamp = block.timestamp
+                const liquidityEvents = await nfpmContract.queryFilter(
+                    increaseLiquidityFilter,
+                    event.blockNumber,
+                    event.blockNumber
+                )
 
-                const date = new Date(timestamp * 1000)
+                if (liquidityEvents.length > 0) {
+                    // at minting moment there should be only one IncreaseLiquidity event
+                    const liquidityEvent = liquidityEvents[0]
 
-                positionMintInfos.push({
-                    blockNumber: event.blockNumber,
-                    date: date.toLocaleString(),
-                    tokenId: BigInt(tokenId),
-                    // @ts-ignore
-                    token0Amount: liquidityEvent.args.amount0,
-                    // @ts-ignore
-                    token1Amount: liquidityEvent.args.amount1,
-                })
+                    const block = await provider.getBlock(event.blockNumber)
+                    const timestamp = block.timestamp
+
+                    const date = new Date(timestamp * 1000)
+
+                    positionMintInfos.push({
+                        blockNumber: event.blockNumber,
+                        date: date.toLocaleString(),
+                        tokenId: BigInt(tokenId),
+                        // @ts-ignore
+                        token0Amount: liquidityEvent.args.amount0,
+                        // @ts-ignore
+                        token1Amount: liquidityEvent.args.amount1,
+                    })
+                }
             }
+            currentStartBlock = currentEndBlock + 1
         }
-        currentStartBlock = currentEndBlock + 1
+        return positionMintInfos
+    } catch (error) {
+        console.error(
+            "An error occurred while getting position livecycle:",
+            error
+        )
+        return []
     }
-    return positionMintInfos
 }

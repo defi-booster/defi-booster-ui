@@ -22,12 +22,19 @@ import { useWeb3StatesContext } from "../../context/web3states"
 import { chainIdToIcon } from "../utils/mappings"
 
 export const Nav = () => {
+    const [isMounted, setMounted] = useState(false)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [web3State] = useWeb3StatesContext()
 
     const { chainId } = useWeb3ModalAccount()
 
     const menuItems = ["Profile", "Dashboard", <ThemeSwitcher />]
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!isMounted) return null
 
     return (
         <Navbar
