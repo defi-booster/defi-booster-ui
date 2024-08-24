@@ -43,7 +43,7 @@ export interface PositionMintInfo {
     token1Amount: bigint
 }
 
-export interface PositionData {
+export interface CollectedData {
     position: UserPositionInfo
     pool: GeneralPoolInfo
     positionMintInfo: PositionMintInfo
