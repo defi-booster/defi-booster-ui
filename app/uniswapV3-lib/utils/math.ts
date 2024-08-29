@@ -106,8 +106,8 @@ export function calcCurrentReserves(
         )
     }
 
-    let amountHuman_0 = (amount0 / 10 ** decimals0).toFixed(decimals0)
-    let amountHuman_1 = (amount1 / 10 ** decimals1).toFixed(decimals1)
+    let amountHuman_0 = (amount0 / 10 ** decimals0).toFixed(8)
+    let amountHuman_1 = (amount1 / 10 ** decimals1).toFixed(8)
 
     return [amountHuman_0, amountHuman_1]
 }
@@ -243,10 +243,10 @@ export function calcUncollectedFees(
     // decimal adjustment to get final results
     let uncollectedFeesHuman_0 = Number(
         uncollectedFees_0 / BigInt(10 ** decimals0)
-    ).toFixed(decimals0)
+    ).toFixed(8)
     let uncollectedFeesHuman_1 = Number(
         uncollectedFees_1 / BigInt(10 ** decimals1)
-    ).toFixed(decimals1)
+    ).toFixed(8)
 
     return [uncollectedFeesHuman_0, uncollectedFeesHuman_1]
 }
