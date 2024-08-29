@@ -2,9 +2,16 @@
 
 import { ConnectButton } from "./connect-button"
 import { ThemeSwitcher } from "./theme-switcher"
-
+import { useTheme } from "next-themes"
+import { ChevronDown } from "./icons/icons"
 import React, { useEffect, useState } from "react"
+import { TokenUNI, TokenAERO } from "@web3icons/react"
+import traderJoeIcon from "./icons/trader_joe.webp"
 import {
+    Dropdown,
+    DropdownItem,
+    DropdownTrigger,
+    DropdownMenu,
     Navbar,
     NavbarBrand,
     NavbarMenuToggle,
@@ -22,13 +29,59 @@ import { useWeb3StatesContext } from "../../context/web3states"
 import { chainIdToIcon } from "../utils/mappings"
 
 export const Nav = () => {
+    const icons = {
+        // @ts-ignore
+        chevron: <ChevronDown fill="currentColor" size={16} />,
+    }
+
     const [isMounted, setMounted] = useState(false)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const { theme } = useTheme()
     const [web3State] = useWeb3StatesContext()
 
     const { chainId } = useWeb3ModalAccount()
 
-    const menuItems = ["Profile", "Dashboard", <ThemeSwitcher />]
+    const menuItems = [
+        {
+            name: "Home",
+            description: "",
+            icon: "🏡",
+            href: "/",
+            style: {},
+        },
+        {
+            name: "UniswapV3",
+            description: "UniswapV3 - detect and monitor your positions.",
+            icon: <TokenUNI variant="branded" />,
+            href: "/uniswapv3",
+            style: {},
+        },
+        {
+            name: "Trader Joe",
+            description: "This section is currently under construction.",
+            icon: (
+                <img
+                    src={traderJoeIcon.src}
+                    width={20}
+                    height={20}
+                    alt="Trader Joe"
+                />
+            ),
+            href: "/trader-joe",
+            style: {
+                pointerEvents: "none",
+            },
+        },
+        {
+            name: "Aerodrome",
+            description: "This section is currently under construction.",
+            icon: <TokenAERO variant="branded" />,
+            href: "/aerodrome",
+            style: {
+                pointerEvents: "none",
+            },
+        },
+    ]
 
     useEffect(() => {
         setMounted(true)
@@ -36,11 +89,19 @@ export const Nav = () => {
 
     if (!isMounted) return null
 
+    let _color
+    if (theme === "dark") {
+        _color = "#6BBE44"
+    } else {
+        _color = "#D40000"
+    }
+
     return (
         <Navbar
             isBordered
             isMenuOpen={isMenuOpen}
             onMenuOpenChange={setIsMenuOpen}
+            maxWidth="full"
         >
             <NavbarContent className="sm:hidden" justify="start">
                 <NavbarMenuToggle
@@ -48,23 +109,82 @@ export const Nav = () => {
                 />
             </NavbarContent>
 
-            <NavbarContent className="sm:hidden pr-3" justify="start">
-                <NavbarBrand>
-                    <p className="font-bold text-inherit">defi engine 🔥</p>
-                </NavbarBrand>
-            </NavbarContent>
-
-            <NavbarContent className="hidden sm:flex gap-4" justify="start">
-                <NavbarBrand>
-                    <p className="font-bold text-inherit">defi engine 🔥</p>
-                </NavbarBrand>
-            </NavbarContent>
+            <NavbarBrand>
+                <Link
+                    className="text-inherit"
+                    style={{
+                        color: _color,
+                        fontWeight: "700",
+                        fontStyle: "italic",
+                    }}
+                    href="/"
+                >
+                    DeFi Booster
+                </Link>
+            </NavbarBrand>
 
             <NavbarContent className="hidden sm:flex gap-4" justify="center">
                 <NavbarItem>
-                    <Link color="foreground" href="#">
-                        choose protocol
-                    </Link>
+                    <Dropdown>
+                        <NavbarItem>
+                            <DropdownTrigger>
+                                <Button
+                                    disableRipple
+                                    className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                                    endContent={icons.chevron}
+                                    radius="sm"
+                                    variant="light"
+                                >
+                                    choose protocol
+                                </Button>
+                            </DropdownTrigger>
+                        </NavbarItem>
+                        <DropdownMenu
+                            aria-label="ACME features"
+                            className="w-[340px]"
+                            itemClasses={{
+                                base: "gap-4",
+                            }}
+                        >
+                            <DropdownItem
+                                key="1"
+                                description="UniswapV3 - detect and monitor your positions."
+                                startContent={<TokenUNI variant="branded" />}
+                                href="/uniswapv3"
+                            >
+                                UniswapV3
+                            </DropdownItem>
+                            <DropdownItem
+                                key="2"
+                                description="This section is currently under construction."
+                                startContent={
+                                    <img
+                                        src={traderJoeIcon.src}
+                                        width={20}
+                                        height={20}
+                                        alt="Trader Joe"
+                                    />
+                                }
+                                href="/trader-joe"
+                                style={{
+                                    pointerEvents: "none",
+                                }}
+                            >
+                                Trader Joe
+                            </DropdownItem>
+                            <DropdownItem
+                                key="3"
+                                description="This section is currently under construction."
+                                startContent={<TokenAERO variant="branded" />}
+                                style={{
+                                    pointerEvents: "none",
+                                }}
+                                href="/aerodrome"
+                            >
+                                Aerodrome
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
                 </NavbarItem>
             </NavbarContent>
 
@@ -87,17 +207,22 @@ export const Nav = () => {
                     <NavbarMenuItem key={`${item}-${index}`}>
                         <Link
                             className="w-full"
-                            color={
-                                index === 2
-                                    ? "warning"
-                                    : index === menuItems.length - 1
-                                    ? "danger"
-                                    : "foreground"
-                            }
-                            href="#"
+                            href={item.href}
                             size="lg"
+                            // @ts-ignore
+                            style={item.style}
                         >
-                            {item}
+                            <div className="w-[340px] flex flex-col gap-4">
+                                <div className="flex items-center gap-4 p-2">
+                                    {item.icon}
+                                    <div>
+                                        <strong>{item.name}</strong>
+                                        <p className="text-sm">
+                                            {item.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </Link>
                     </NavbarMenuItem>
                 ))}

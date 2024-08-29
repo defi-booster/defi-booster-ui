@@ -1,4 +1,5 @@
 import "./globals.css"
+import { JetBrains_Mono } from "next/font/google"
 import { NextUIProvider } from "@nextui-org/react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { Web3Modal } from "../context/web3modal"
@@ -11,10 +12,15 @@ export const metadata = {
     description: "null",
 }
 
+const jet_mono = JetBrains_Mono({
+    subsets: ["latin"],
+    weight: "100",
+})
+
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
-            <body>
+            <body className={jet_mono.className}>
                 <NextUIProvider>
                     <NextThemesProvider attribute="class" defaultTheme="dark">
                         <Web3StatesProvider>

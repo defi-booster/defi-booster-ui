@@ -72,7 +72,7 @@ export async function calcPositionDataLst(
                 (mintInfo) => mintInfo.tokenId === userPositionInfos[i].tokenId
             )
 
-            if (positionMintInfo.length !== userPositionInfos.length) {
+            if (positionMintInfos.length !== userPositionInfos.length) {
                 console.error(
                     "mint infos and position infos lengths not match!"
                 )
