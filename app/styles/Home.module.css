@@ -1,0 +1,64 @@
+.main_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+}
+
+.main_container div p {
+    text-align: center;
+}
+
+.image_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 300px;
+}
+
+.image {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    transition: transform 0.3s ease;
+}
+
+.image_1 {
+    transform: rotate(-10deg);
+    z-index: 1;
+}
+
+.image_2 {
+    transform: rotate(5deg);
+    z-index: 2;
+}
+
+.image_3 {
+    transform: rotate(-7deg);
+    z-index: 3;
+}
+
+@media (max-width: 768px) {
+    .main_container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .image_container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        height: 300px;
+    }
+
+    .image {
+        width: 100px;
+        height: 100px;
+    }
+}

@@ -18,8 +18,18 @@
     cursor: pointer;
     padding-left: 25px;
 }
+.footer_copy p {
+    margin-left: 20px;
+}
 .footer_copy {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
+}
+.footer_copy img {
+    width: 30px;
+    height: 30px;
 }
 .footer_code_and_docs {
     display: flex;
