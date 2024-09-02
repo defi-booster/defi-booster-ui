@@ -7,6 +7,8 @@ import { ChevronDown } from "./icons/icons"
 import React, { useEffect, useState } from "react"
 import { TokenUNI, TokenAERO } from "@web3icons/react"
 import traderJoeIcon from "./icons/trader_joe.webp"
+import defiBoosterDark from "./images/defi_booster_dark.svg"
+import defiBoosterLight from "./images/defi_booster_light.svg"
 import {
     Dropdown,
     DropdownItem,
@@ -27,6 +29,8 @@ import {
 import { useWeb3ModalAccount } from "@web3modal/ethers/react"
 import { useWeb3StatesContext } from "../../context/web3states"
 import { chainIdToIcon } from "../utils/mappings"
+
+import styles from "../styles/Nav.module.css"
 
 export const Nav = () => {
     const icons = {
@@ -111,7 +115,7 @@ export const Nav = () => {
 
             <NavbarBrand>
                 <Link
-                    className="text-inherit"
+                    className={`text-inherit ${styles.link_wrapper}`}
                     style={{
                         color: _color,
                         fontWeight: "700",
@@ -119,7 +123,19 @@ export const Nav = () => {
                     }}
                     href="/"
                 >
-                    DeFi Booster{" "}
+                    <img
+                        src={
+                            theme === "dark"
+                                ? defiBoosterDark.src
+                                : defiBoosterLight.src
+                        }
+                        alt={
+                            theme === "dark"
+                                ? "DeFi Booster dark"
+                                : "DeFi Booster light"
+                        }
+                    />
+                    <p>DeFi Booster</p>
                 </Link>
             </NavbarBrand>
 
