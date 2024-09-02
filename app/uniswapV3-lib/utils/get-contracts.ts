@@ -10,7 +10,7 @@ import { UniswapV3Contracts } from "./enums"
 
 export function getNonFungiblePositionManagerContract(
     provider: ethers.BrowserProvider,
-    chainId: number
+    chainId: number,
 ) {
     let nfpmAddress: string
     try {
@@ -26,7 +26,7 @@ export function getNonFungiblePositionManagerContract(
     return new ethers.Contract(
         nfpmAddress,
         INONFUNGIBLE_POSITION_MANAGER.abi,
-        provider
+        provider,
     )
 }
 
@@ -35,7 +35,7 @@ export function getPoolContract(
     chainId: number,
     tokenIn: Token,
     tokenOut: Token,
-    poolFee: number
+    poolFee: number,
 ) {
     let factoryAddress: string
     try {

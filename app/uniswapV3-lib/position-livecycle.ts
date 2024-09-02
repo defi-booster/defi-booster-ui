@@ -7,7 +7,7 @@ export async function getPoolMintingDate(
     provider: ethers.BrowserProvider,
     chainId: number,
     nfpmContract: ethers.Contract,
-    address: string
+    address: string,
 ): Promise<PositionMintInfo[]> {
     try {
         const startBlock =
@@ -19,18 +19,18 @@ export async function getPoolMintingDate(
 
         const filter = nfpmContract.filters.Transfer(
             "0x0000000000000000000000000000000000000000",
-            address
+            address,
         )
 
         while (currentStartBlock <= endBlock) {
             const currentEndBlock = Math.min(
                 currentStartBlock + maxBlockRequests - 1,
-                endBlock
+                endBlock,
             )
             const events = await nfpmContract.queryFilter(
                 filter,
                 currentStartBlock,
-                currentEndBlock
+                currentEndBlock,
             )
 
             for (const event of events) {
@@ -42,7 +42,7 @@ export async function getPoolMintingDate(
                 const liquidityEvents = await nfpmContract.queryFilter(
                     increaseLiquidityFilter,
                     event.blockNumber,
-                    event.blockNumber
+                    event.blockNumber,
                 )
 
                 if (liquidityEvents.length > 0) {
@@ -71,7 +71,7 @@ export async function getPoolMintingDate(
     } catch (error) {
         console.error(
             "An error occurred while getting position livecycle:",
-            error
+            error,
         )
         return []
     }

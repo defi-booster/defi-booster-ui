@@ -32,7 +32,7 @@ export function WalletLPList({ network }) {
                 const positionDataLst = await calcPositionDataLst(
                     provider,
                     chainId,
-                    address
+                    address,
                 )
                 setPositionsData(positionDataLst)
             })()
@@ -105,18 +105,20 @@ export function WalletLPList({ network }) {
                             <PositionGauge
                                 lowerPrice={Number(
                                     parseFloat(
-                                        data.priceTickLower.match(/[\d.]+/)[0]
-                                    ).toFixed(0)
+                                        data.priceTickLower.match(/[\d.]+/)[0],
+                                    ).toFixed(0),
                                 )}
                                 currentPrice={Number(
                                     parseFloat(
-                                        data.priceTickCurrent.match(/[\d.]+/)[0]
-                                    ).toFixed(0)
+                                        data.priceTickCurrent.match(
+                                            /[\d.]+/,
+                                        )[0],
+                                    ).toFixed(0),
                                 )}
                                 upperPrice={parseFloat(
                                     Number(
-                                        data.priceTickUpper.match(/[\d.]+/)[0]
-                                    ).toFixed(0)
+                                        data.priceTickUpper.match(/[\d.]+/)[0],
+                                    ).toFixed(0),
                                 )}
                                 isInRange={data.isInRange}
                             />

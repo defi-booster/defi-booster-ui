@@ -4,7 +4,15 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "next dev"
+        "build": "next build",
+        "dev": "next dev",
+        "start": "next start",
+        "prepare": "husky install",
+        "check-types": "tsc --pretty --noEmit",
+        "check-format": "prettier --check .",
+        "check-lint": "next lint",
+        "format": "prettier --write .",
+        "test-all": "npm run check-format && npm run check-lint && npm run check-types && npm run build"
     },
     "author": "",
     "license": "ISC",
@@ -19,6 +27,7 @@
         "@web3icons/core": "^3.2.1",
         "@web3icons/react": "^3.2.1",
         "@web3modal/ethers": "^5.0.6",
+        "echarts": "^5.5.1",
         "echarts-for-react": "^3.0.2",
         "ethers": "^6.13.1",
         "framer-motion": "^11.3.24",
@@ -30,14 +39,20 @@
         "web3modal": "^1.9.12"
     },
     "devDependencies": {
+        "@eslint/js": "^9.9.1",
         "@types/node": "^20.14.10",
         "@types/react": "^18.3.3",
         "@types/react-dom": "^18.3.0",
-        "@typescript-eslint/eslint-plugin": "^7.13.1",
-        "@typescript-eslint/parser": "^7.13.1",
         "autoprefixer": "^10.4.20",
+        "eslint": "^8.9.1",
+        "eslint-config-next": "14.2.7",
+        "eslint-plugin-react": "^7.35.0",
+        "globals": "^15.9.0",
+        "husky": "^8.0.0",
         "postcss": "^8.4.41",
+        "prettier": "^3.3.3",
         "tailwindcss": "^3.4.9",
-        "typescript": "^5.5.3"
+        "typescript": "^5.5.3",
+        "typescript-eslint": "^8.3.0"
     }
 }

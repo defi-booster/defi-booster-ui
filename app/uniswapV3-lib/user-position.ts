@@ -6,7 +6,7 @@ import { UserPositionInfo } from "./utils/types"
 export async function getUserPositions(
     provider: ethers.BrowserProvider,
     address: string,
-    nfpmContract: ethers.Contract
+    nfpmContract: ethers.Contract,
 ): Promise<Array<UserPositionInfo>> {
     try {
         const numPositions = await nfpmContract.balanceOf(address)
@@ -31,12 +31,12 @@ export async function getUserPositions(
             const token0Contract = new ethers.Contract(
                 position.token0,
                 ERC20_ABI,
-                provider
+                provider,
             )
             const token1Contract = new ethers.Contract(
                 position.token1,
                 ERC20_ABI,
-                provider
+                provider,
             )
             const token0Symbol = await token0Contract.symbol()
             const token1Symbol = await token1Contract.symbol()

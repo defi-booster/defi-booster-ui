@@ -18,7 +18,7 @@ export function formatDataForUI(positions: CollectedData[]) {
             Number(data.position.tickLower),
             Number(data.position.tickUpper),
             Number(data.position.token0Decimals),
-            Number(data.position.token1Decimals)
+            Number(data.position.token1Decimals),
         )
 
         const [uncollectedFees_0, uncollectedFees_1] = calcUncollectedFees(
@@ -35,13 +35,13 @@ export function formatDataForUI(positions: CollectedData[]) {
             Number(data.position.tickLower),
             Number(data.pool.tick),
             Number(data.position.token0Decimals),
-            Number(data.position.token1Decimals)
+            Number(data.position.token1Decimals),
         )
 
         const inRange = isInRange(
             Number(data.position.tickLower),
             Number(data.pool.tick),
-            Number(data.position.tickUpper)
+            Number(data.position.tickUpper),
         )
 
         return {
@@ -50,14 +50,14 @@ export function formatDataForUI(positions: CollectedData[]) {
             token0token1Price: `${fromsqrtPriceX96ToHumanReadable(
                 data.pool.sqrtPriceX96,
                 data.position.token0Decimals,
-                data.position.token1Decimals
+                data.position.token1Decimals,
             ).token0Token1Price.toFixed(8)} ${data.position.token0Symbol}/${
                 data.position.token1Symbol
             }`,
             token1token0Price: `${fromsqrtPriceX96ToHumanReadable(
                 data.pool.sqrtPriceX96,
                 data.position.token0Decimals,
-                data.position.token1Decimals
+                data.position.token1Decimals,
             ).token1Token0Price.toFixed(8)} ${data.position.token1Symbol}/${
                 data.position.token0Symbol
             }`,
@@ -69,21 +69,21 @@ export function formatDataForUI(positions: CollectedData[]) {
             priceTickLower: `${fromTicksToHumanReadablePrice(
                 Number(data.position.tickLower),
                 Number(data.position.token0Decimals),
-                Number(data.position.token1Decimals)
+                Number(data.position.token1Decimals),
             ).token1Token0Price.toFixed(8)} ${data.position.token1Symbol} / ${
                 data.position.token0Symbol
             }`,
             priceTickCurrent: `${fromTicksToHumanReadablePrice(
                 Number(data.pool.tick),
                 Number(data.position.token0Decimals),
-                Number(data.position.token1Decimals)
+                Number(data.position.token1Decimals),
             ).token1Token0Price.toFixed(8)} ${data.position.token1Symbol} / ${
                 data.position.token0Symbol
             }`,
             priceTickUpper: `${fromTicksToHumanReadablePrice(
                 Number(data.position.tickUpper),
                 Number(data.position.token0Decimals),
-                Number(data.position.token1Decimals)
+                Number(data.position.token1Decimals),
             ).token1Token0Price.toFixed(8)} ${data.position.token1Symbol} / ${
                 data.position.token0Symbol
             }`,
@@ -95,14 +95,14 @@ export function formatDataForUI(positions: CollectedData[]) {
             mintSupplyToken0: Number(
                 ethers.formatUnits(
                     data.positionMintInfo.token0Amount,
-                    data.position.token0Decimals
-                )
+                    data.position.token0Decimals,
+                ),
             ).toFixed(8),
             mintSupplyToken1: Number(
                 ethers.formatUnits(
                     data.positionMintInfo.token1Amount,
-                    data.position.token1Decimals
-                )
+                    data.position.token1Decimals,
+                ),
             ).toFixed(8),
             isInRange: inRange,
         }
