@@ -4,7 +4,7 @@ import { GeneralPoolInfo } from "./utils/types"
 export async function getPoolInfo(
     poolContract: ethers.Contract,
     tickUpper: number,
-    tickLower: number
+    tickLower: number,
 ): Promise<GeneralPoolInfo> {
     try {
         const [

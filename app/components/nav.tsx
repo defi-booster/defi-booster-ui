@@ -119,7 +119,7 @@ export const Nav = () => {
                     }}
                     href="/"
                 >
-                    DeFi Booster
+                    DeFi Booster{" "}
                 </Link>
             </NavbarBrand>
 

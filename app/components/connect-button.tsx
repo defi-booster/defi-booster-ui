@@ -13,7 +13,7 @@ import { useWeb3StatesContext } from "../../context/web3states"
 export const ConnectButton = () => {
     const [web3State, setWeb3State] = useWeb3StatesContext()
     const [network, setNetwork] = useState<SupportedChains>(
-        SupportedChains.Unsupported
+        SupportedChains.Unsupported,
     )
     const { open } = useWeb3Modal()
     const { disconnect } = useDisconnect()

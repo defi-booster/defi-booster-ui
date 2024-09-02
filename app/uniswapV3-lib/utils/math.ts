@@ -12,7 +12,7 @@ const Q256 = 2n ** 256n
 export function fromTicksToHumanReadablePrice(
     ticks: number,
     decimals0: number,
-    decimals1: number
+    decimals1: number,
 ): PricesInfo {
     /**
      * @notice calculate human readable price from ticks
@@ -38,7 +38,7 @@ export function fromTicksToHumanReadablePrice(
 export function fromsqrtPriceX96ToHumanReadable(
     sqrtPriceX96: bigint,
     decimals0: number,
-    decimals1: number
+    decimals1: number,
 ) {
     /**
      * @notice calculate human readable price from sqrtPriceX96
@@ -68,7 +68,7 @@ export function calcCurrentReserves(
     tickLower: number,
     tickUpper: number,
     decimals0: number,
-    decimals1: number
+    decimals1: number,
 ) {
     /**
      * @notice calculate current reserves in human readable format
@@ -90,19 +90,19 @@ export function calcCurrentReserves(
     if (tickCurrent < tickLower) {
         amount0 = Math.floor(
             Number(suppliedLiquidity) *
-                ((sqrtRatioB - sqrtRatioA) / (sqrtRatioA * sqrtRatioB))
+                ((sqrtRatioB - sqrtRatioA) / (sqrtRatioA * sqrtRatioB)),
         )
     } else if (tickCurrent >= tickUpper) {
         amount1 = Math.floor(
-            Number(suppliedLiquidity) * (sqrtRatioB - sqrtRatioA)
+            Number(suppliedLiquidity) * (sqrtRatioB - sqrtRatioA),
         )
     } else if (tickCurrent >= tickLower && tickCurrent < tickUpper) {
         amount0 = Math.floor(
             Number(suppliedLiquidity) *
-                ((sqrtRatioB - sqrtPrice) / (sqrtPrice * sqrtRatioB))
+                ((sqrtRatioB - sqrtPrice) / (sqrtPrice * sqrtRatioB)),
         )
         amount1 = Math.floor(
-            Number(suppliedLiquidity) * (sqrtPrice - sqrtRatioA)
+            Number(suppliedLiquidity) * (sqrtPrice - sqrtRatioA),
         )
     }
 
@@ -120,7 +120,7 @@ export function sqrtPriceX96ToTicks(sqrtPriceX96: bigint) {
      */
     const Q96 = 2 ** 96
     return Math.floor(
-        Math.log((Number(sqrtPriceX96) / Q96) ** 2) / Math.log(1.0001)
+        Math.log((Number(sqrtPriceX96) / Q96) ** 2) / Math.log(1.0001),
     )
 }
 
@@ -162,7 +162,7 @@ export function calcUncollectedFees(
     tickLower: number,
     tickCurrent: number,
     decimals0: number,
-    decimals1: number
+    decimals1: number,
 ) {
     /**
      * @notice calculate uncollected fees
@@ -193,11 +193,11 @@ export function calcUncollectedFees(
     if (tickCurrent >= tickUpper) {
         tickUpperFeeGrowthAbove_0 = _subIn256(
             feeGrowthGlobalX128_0,
-            tickUpperFeeGrowthOutsideX128_0
+            tickUpperFeeGrowthOutsideX128_0,
         )
         tickUpperFeeGrowthAbove_1 = _subIn256(
             feeGrowthGlobalX128_1,
-            tickUpperFeeGrowthOutsideX128_1
+            tickUpperFeeGrowthOutsideX128_1,
         )
     } else {
         // Else if current tick is in range only need fg for upper growth
@@ -212,22 +212,22 @@ export function calcUncollectedFees(
         // If current tick is above the range fg- fo,il Growth below range
         tickLowerFeeGrowthBelow_0 = _subIn256(
             feeGrowthGlobalX128_0,
-            tickLowerFeeGrowthOutsideX128_0
+            tickLowerFeeGrowthOutsideX128_0,
         )
         tickLowerFeeGrowthBelow_1 = _subIn256(
             feeGrowthGlobalX128_1,
-            tickLowerFeeGrowthOutsideX128_1
+            tickLowerFeeGrowthOutsideX128_1,
         )
     }
 
     // fr(t1) for both token0 and token1
     let fr_t1_0 = _subIn256(
         _subIn256(feeGrowthGlobalX128_0, tickLowerFeeGrowthBelow_0),
-        tickUpperFeeGrowthAbove_0
+        tickUpperFeeGrowthAbove_0,
     )
     let fr_t1_1 = _subIn256(
         _subIn256(feeGrowthGlobalX128_1, tickLowerFeeGrowthBelow_1),
-        tickUpperFeeGrowthAbove_1
+        tickUpperFeeGrowthAbove_1,
     )
 
     // The final calculations uncollected fees formula
@@ -242,10 +242,10 @@ export function calcUncollectedFees(
 
     // decimal adjustment to get final results
     let uncollectedFeesHuman_0 = Number(
-        uncollectedFees_0 / BigInt(10 ** decimals0)
+        uncollectedFees_0 / BigInt(10 ** decimals0),
     ).toFixed(8)
     let uncollectedFeesHuman_1 = Number(
-        uncollectedFees_1 / BigInt(10 ** decimals1)
+        uncollectedFees_1 / BigInt(10 ** decimals1),
     ).toFixed(8)
 
     return [uncollectedFeesHuman_0, uncollectedFeesHuman_1]
