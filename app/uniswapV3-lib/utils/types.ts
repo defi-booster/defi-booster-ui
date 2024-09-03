@@ -1,8 +1,14 @@
-// data from UniswapV3Pool contract
-export interface GeneralPoolInfo {
-    token0Address: string
-    token1Address: string
-    fee: number
+// data from scanning Transfer event on NonfungiblePositionManager contract from adress 0x0 to wallet
+// export interface PositionMintInfo {
+//     blockNumber: bigint
+//     date: string
+//     tokenId: bigint
+//     token0Amount: bigint
+//     token1Amount: bigint
+// }
+
+// general info about pool associated with this position - source of data: UniswapV3Pool
+export interface Pool {
     tickSpacing: bigint
     liquidity: bigint
     sqrtPriceX96: bigint
@@ -15,9 +21,8 @@ export interface GeneralPoolInfo {
     tickLowerFeeGrowthOutsideX128_1: bigint
 }
 
-// data from NonfungiblePositionManager contract
-export interface UserPositionInfo {
-    tokenId: bigint
+// position specific info - source of data: NonfungiblePositionManager
+export interface Position {
     token0Address: string
     token1Address: string
     token0Symbol: string
@@ -34,17 +39,10 @@ export interface UserPositionInfo {
     tokensOwed1: bigint
 }
 
-// data from scanning Transfer event on NonfungiblePositionManager contract from adress 0x0 to wallet
-export interface PositionMintInfo {
-    blockNumber: bigint
-    date: string
-    tokenId: bigint
-    token0Amount: bigint
-    token1Amount: bigint
+export type Pools = {
+    [poolKey: string]: Pool
 }
 
-export interface CollectedData {
-    position: UserPositionInfo
-    pool: GeneralPoolInfo
-    positionMintInfo: PositionMintInfo
+export type Positions = {
+    [tokenId: string]: Position
 }
