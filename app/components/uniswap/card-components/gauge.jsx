@@ -1,18 +1,42 @@
 "use client"
 import { useTheme } from "next-themes"
 import ReactECharts from "echarts-for-react"
-import { Button } from "@nextui-org/react"
-import { color } from "framer-motion"
 
-export function PositionGauge({
-    lowerPrice,
-    currentPrice,
-    upperPrice,
+import { CardBody } from "@nextui-org/react"
+
+import {
+    fromTicksToHumanReadablePrice,
     isInRange,
-}) {
+} from "../../../uniswapV3-lib/utils/math"
+
+export function PositionGauge({ pool, position }) {
     const { theme } = useTheme()
 
     const labelColor = theme === "dark" ? "#ECEDEE" : "#11181C"
+
+    const priceTickLower = fromTicksToHumanReadablePrice(
+        Number(position.tickLower),
+        Number(position.token0Decimals),
+        Number(position.token1Decimals),
+    ).token1Token0Price.toFixed(0)
+
+    const priceTickCurrent = fromTicksToHumanReadablePrice(
+        Number(pool.tick),
+        Number(position.token0Decimals),
+        Number(position.token1Decimals),
+    ).token1Token0Price.toFixed(0)
+
+    const priceTickUpper = fromTicksToHumanReadablePrice(
+        Number(position.tickUpper),
+        Number(position.token0Decimals),
+        Number(position.token1Decimals),
+    ).token1Token0Price.toFixed(0)
+
+    const inRange = isInRange(
+        Number(position.tickLower),
+        Number(pool.tick),
+        Number(position.tickUpper),
+    )
 
     let option = {
         series: [
@@ -20,8 +44,8 @@ export function PositionGauge({
                 type: "gauge",
                 startAngle: 195,
                 endAngle: -15,
-                min: lowerPrice,
-                max: upperPrice,
+                min: priceTickLower,
+                max: priceTickUpper,
                 splitNumber: 2,
                 itemStyle: {
                     color: "#6BBE44",
@@ -72,7 +96,7 @@ export function PositionGauge({
                 detail: {
                     show: true,
                     fontSize: 24,
-                    color: isInRange ? "#6BBE44" : "#D40000",
+                    color: inRange ? "#6BBE44" : "#D40000",
                     offsetCenter: [0, "60%"],
                     valueAnimation: true,
                     formatter: function (value) {
@@ -81,7 +105,7 @@ export function PositionGauge({
                 },
                 data: [
                     {
-                        value: currentPrice,
+                        value: priceTickCurrent,
                     },
                 ],
             },
@@ -89,19 +113,8 @@ export function PositionGauge({
     }
 
     return (
-        <div>
+        <CardBody>
             <ReactECharts option={option} />
-        </div>
+        </CardBody>
     )
 }
-
-// {data.isInRange ? (
-//     <Button color="success" aria-label="Like">
-//         In range
-//     </Button>
-// ) : (
-//     <Button color="danger" aria-label="Like">
-//         out of range
-//     </Button>
-// )}
-//

@@ -1,16 +1,13 @@
 import { ethers } from "ethers"
-import { GeneralPoolInfo } from "./utils/types"
+import { Pool } from "./utils/types"
 
-export async function getPoolInfo(
+export async function getPool(
     poolContract: ethers.Contract,
     tickUpper: number,
     tickLower: number,
-): Promise<GeneralPoolInfo> {
+): Promise<Pool> {
     try {
         const [
-            token0,
-            token1,
-            fee,
             tickSpacing,
             liquidity,
             slot0,
@@ -19,9 +16,6 @@ export async function getPoolInfo(
             ticksUpperOutput,
             ticksLowerOutput,
         ] = await Promise.all([
-            poolContract.token0(),
-            poolContract.token1(),
-            poolContract.fee(),
             poolContract.tickSpacing(),
             poolContract.liquidity(),
             poolContract.slot0(),
@@ -32,9 +26,6 @@ export async function getPoolInfo(
         ])
 
         return {
-            token0Address: token0,
-            token1Address: token1,
-            fee: fee,
             tickSpacing: tickSpacing,
             liquidity: liquidity,
             sqrtPriceX96: slot0[0],
