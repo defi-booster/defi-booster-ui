@@ -136,7 +136,23 @@ export function WalletLPList({ network }) {
                 amount0: bigint,
                 amount1: bigint,
                 event: ethers.EventLog,
-            ) => {}
+            ) => {
+                console.log(
+                    `decreaseLiquidity event detected by amounts ${amount0} and ${amount1} for tokenId ${tokenId}`,
+                )
+                ;(async () => {
+                    const position = await collectPosition(
+                        provider,
+                        chainId,
+                        tokenId,
+                    )
+
+                    setPositions((prev) => ({
+                        ...prev,
+                        [`${tokenId}`]: position,
+                    }))
+                })()
+            }
 
             const handleCollect = (
                 tokenId: bigint,
