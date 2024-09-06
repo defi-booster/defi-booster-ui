@@ -112,7 +112,23 @@ export function WalletLPList({ network }) {
                 amount0: bigint,
                 amount1: bigint,
                 event: ethers.EventLog,
-            ) => {}
+            ) => {
+                console.log(
+                    `increaseLiquidity event detected by amounts ${amount0} and ${amount1} for tokenId ${tokenId}`,
+                )
+                ;(async () => {
+                    const position = await collectPosition(
+                        provider,
+                        chainId,
+                        tokenId,
+                    )
+
+                    setPositions((prev) => ({
+                        ...prev,
+                        [`${tokenId}`]: position,
+                    }))
+                })()
+            }
 
             const handleDecreaseLiquidity = (
                 tokenId: bigint,
@@ -128,22 +144,17 @@ export function WalletLPList({ network }) {
                 amount1: bigint,
                 event: ethers.EventLog,
             ) => {}
-            const handleBurn = (tokenId: bigint, event: ethers.EventLog) => {
-                console.log("Burn")
-            }
 
             nfpmContract.on("Transfer", handleTransfer)
             nfpmContract.on("IncreaseLiquidity", handleIncreaseLiquidity)
             nfpmContract.on("DecreaseLiquidity", handleDecreaseLiquidity)
             nfpmContract.on("Collect", handleCollect)
-            nfpmContract.on("Burn", handleBurn)
 
             return () => {
                 nfpmContract.off("Transfer", handleTransfer)
                 nfpmContract.off("IncreaseLiquidity", handleIncreaseLiquidity)
                 nfpmContract.off("DecreaseLiquidity", handleDecreaseLiquidity)
                 nfpmContract.off("Collect", handleCollect)
-                nfpmContract.off("Burn", handleBurn)
             }
         }
     }, [walletProvider, network, address])
