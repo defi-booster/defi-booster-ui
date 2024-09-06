@@ -22,7 +22,7 @@ const base = {
 }
 
 const metadata = {
-    name: "defi_engine",
+    name: "defi_booster",
     description: "AppKit Example",
     url: "https://web3modal.com", // origin must match your domain & subdomain
     icons: ["https://avatars.githubusercontent.com/u/37784886"],

@@ -8,7 +8,7 @@ import { Nav } from "./components/nav"
 import { Footer } from "./components/footer"
 
 export const metadata = {
-    title: "defi_engine",
+    title: "defi_booster",
     description: "null",
 }
 
