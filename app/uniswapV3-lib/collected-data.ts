@@ -1,7 +1,7 @@
 import { ethers } from "ethers"
 import { Token } from "@uniswap/sdk-core"
 
-import { Pools, Position, Positions } from "./utils/types"
+import { Pool, Pools, Position, Positions } from "./utils/types"
 import {
     getNonFungiblePositionManagerContract,
     getPoolContract,
@@ -158,6 +158,61 @@ export async function collectPools(
         return pools
     } catch (error) {
         console.error("An error occurred while collecting pools: ", error)
+        return undefined
+    }
+}
+
+export async function collectPool(
+    provider: ethers.BrowserProvider,
+    chainId: number,
+    position: Position,
+): Promise<Pool> {
+    /**
+     * @notice collect user pool
+     * @dev
+     * @param {ethers.BrowserProvider} provider
+     * @param {number} chainId
+     * @param {Position} position
+     */
+    try {
+        const token0Obj = new Token(
+            chainId,
+            position.token0Address,
+            Number(position.token0Decimals),
+            position.token0Symbol,
+            position.token0Symbol,
+        )
+
+        const token1Obj = new Token(
+            chainId,
+            position.token1Address,
+            Number(position.token1Decimals),
+            position.token1Symbol,
+            position.token1Symbol,
+        )
+
+        const poolContract = getPoolContract(
+            provider,
+            chainId,
+            token0Obj,
+            token1Obj,
+            position.fee,
+        )
+
+        const pool = await getPool(
+            poolContract,
+            Number(position.tickUpper),
+            Number(position.tickLower),
+        )
+
+        if (pool === undefined) {
+            console.error("can't get general pool info!")
+            return undefined
+        }
+
+        return pool
+    } catch (error) {
+        console.error("An error occurred while collecting pool: ", error)
         return undefined
     }
 }

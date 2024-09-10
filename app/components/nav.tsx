@@ -9,6 +9,7 @@ import { TokenUNI, TokenAERO } from "@web3icons/react"
 import traderJoeIcon from "./icons/trader_joe.webp"
 import defiBoosterDark from "./images/defi_booster_dark.svg"
 import defiBoosterLight from "./images/defi_booster_light.svg"
+
 import {
     Dropdown,
     DropdownItem,
@@ -129,13 +130,16 @@ export const Nav = () => {
                                 ? defiBoosterDark.src
                                 : defiBoosterLight.src
                         }
+                        className={styles.logo_flag}
                         alt={
                             theme === "dark"
                                 ? "DeFi Booster dark"
                                 : "DeFi Booster light"
                         }
                     />
-                    <p>DeFi Booster</p>
+                    <p style={{ color: theme === "dark" ? "white" : "black" }}>
+                        DeFi Booster
+                    </p>
                 </Link>
             </NavbarBrand>
 

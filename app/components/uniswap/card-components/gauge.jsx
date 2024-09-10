@@ -100,7 +100,7 @@ export function PositionGauge({ pool, position }) {
                     offsetCenter: [0, "60%"],
                     valueAnimation: true,
                     formatter: function (value) {
-                        return isInRange ? "in range" : "out of range"
+                        return inRange ? "in range" : "out of range"
                     },
                 },
                 data: [
