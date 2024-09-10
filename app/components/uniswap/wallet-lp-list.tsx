@@ -1,6 +1,6 @@
 "use client"
 import { ethers } from "ethers"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import {
     useWeb3ModalAccount,
     useWeb3ModalProvider,
@@ -12,8 +12,9 @@ import { SupportedChains } from "../../utils/enums"
 import { getNonFungiblePositionManagerContract } from "../../uniswapV3-lib/utils/get-contracts"
 
 import {
-    collectPositions,
     collectPosition,
+    collectPositions,
+    collectPool,
     collectPools,
 } from "../../uniswapV3-lib/collected-data"
 
@@ -30,8 +31,16 @@ import { Positions, Pools } from "../../uniswapV3-lib/utils/types"
 export function WalletLPList({ network }) {
     const [positions, setPositions] = useState<Positions>({})
     const [pools, setPools] = useState<Pools>({})
+    const [triggerRefresh, setTriggerRefresh] = useState(false)
+
+    const poolsRef = useRef(pools)
+
     const { address, chainId } = useWeb3ModalAccount()
     const { walletProvider } = useWeb3ModalProvider()
+
+    useEffect(() => {
+        poolsRef.current = pools
+    }, [pools])
 
     useEffect(() => {
         if (
@@ -47,10 +56,10 @@ export function WalletLPList({ network }) {
                     address,
                 )
 
-                const pools = await collectPools(provider, chainId, positions)
+                const _pools = await collectPools(provider, chainId, positions)
 
                 setPositions(positions)
-                setPools(pools)
+                setPools(_pools)
             })()
         }
     }, [walletProvider, network, address])
@@ -93,6 +102,26 @@ export function WalletLPList({ network }) {
                             ...prev,
                             [`${tokenId}`]: position,
                         }))
+
+                        // check if pool is exists - if not collect
+                        const _pools = poolsRef.current
+                        if (
+                            _pools[
+                                `${position.token0Symbol}${position.token1Symbol}${String(position.fee)}`
+                            ] === undefined
+                        ) {
+                            const pool = await collectPool(
+                                provider,
+                                chainId,
+                                position,
+                            )
+
+                            setPools((prev) => ({
+                                ...prev,
+                                [`${position.token0Symbol}${position.token1Symbol}${position.fee}`]:
+                                    pool,
+                            }))
+                        }
                     })()
                 } else if (from.toLowerCase() === address.toLowerCase()) {
                     console.log(`Position removed from tokenId ${tokenId}`)
@@ -175,6 +204,44 @@ export function WalletLPList({ network }) {
         }
     }, [walletProvider, network, address])
 
+    useEffect(() => {
+        if (
+            triggerRefresh &&
+            walletProvider !== undefined &&
+            network !== SupportedChains.Unsupported
+        ) {
+            const provider = new ethers.BrowserProvider(walletProvider)
+
+            ;(async () => {
+                const positions = await collectPositions(
+                    provider,
+                    chainId,
+                    address,
+                )
+
+                const _pools = await collectPools(provider, chainId, positions)
+
+                setPositions(positions)
+                setPools(_pools)
+            })()
+
+            setTriggerRefresh(false)
+        }
+    }, [triggerRefresh])
+
+    // trigger update for posistions in case if swaps will change position parameters
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setTriggerRefresh(true)
+        }, 60000)
+
+        return () => clearInterval(intervalId)
+    }, [])
+
+    if (Object.keys(positions).length === 0) {
+        return <div>User doesn&apos;t have any positions.</div>
+    }
+
     return network !== SupportedChains.Unsupported ? (
         <div
             style={{
@@ -184,6 +251,12 @@ export function WalletLPList({ network }) {
             className="gap-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
         >
             {Object.keys(positions).map((tokenId, index) => {
+                const pooKey = `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
+
+                if (pools[pooKey] === undefined) {
+                    return null
+                }
+
                 return (
                     <Card
                         className="max-w-[450px]"
@@ -198,47 +271,27 @@ export function WalletLPList({ network }) {
                         />
                         <Divider />
                         <Price
-                            pool={
-                                pools[
-                                    `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
-                                ]
-                            }
+                            pool={pools[pooKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <Reserves
-                            pool={
-                                pools[
-                                    `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
-                                ]
-                            }
+                            pool={pools[pooKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <Ticks
-                            pool={
-                                pools[
-                                    `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
-                                ]
-                            }
+                            pool={pools[pooKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <TickPrices
-                            pool={
-                                pools[
-                                    `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
-                                ]
-                            }
+                            pool={pools[pooKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <UncollectedFees
-                            pool={
-                                pools[
-                                    `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
-                                ]
-                            }
+                            pool={pools[pooKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
@@ -247,11 +300,7 @@ export function WalletLPList({ network }) {
                         </CardBody>
                         <Divider /> */}
                         <PositionGauge
-                            pool={
-                                pools[
-                                    `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
-                                ]
-                            }
+                            pool={pools[pooKey]}
                             position={positions[tokenId]}
                         />
                     </Card>
