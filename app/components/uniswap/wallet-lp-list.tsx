@@ -188,7 +188,23 @@ export function WalletLPList({ network }) {
                 amount0: bigint,
                 amount1: bigint,
                 event: ethers.EventLog,
-            ) => {}
+            ) => {
+                console.log(
+                    `collect fees event detected by amounts ${amount0} and ${amount1} for tokenId ${tokenId}`,
+                )
+                ;(async () => {
+                    const position = await collectPosition(
+                        provider,
+                        chainId,
+                        tokenId,
+                    )
+
+                    setPositions((prev) => ({
+                        ...prev,
+                        [`${tokenId}`]: position,
+                    }))
+                })()
+            }
 
             nfpmContract.on("Transfer", handleTransfer)
             nfpmContract.on("IncreaseLiquidity", handleIncreaseLiquidity)
