@@ -1,12 +1,3 @@
-// data from scanning Transfer event on NonfungiblePositionManager contract from adress 0x0 to wallet
-// export interface PositionMintInfo {
-//     blockNumber: bigint
-//     date: string
-//     tokenId: bigint
-//     token0Amount: bigint
-//     token1Amount: bigint
-// }
-
 // general info about pool associated with this position - source of data: UniswapV3Pool
 export interface Pool {
     tickSpacing: bigint
@@ -45,4 +36,14 @@ export type Pools = {
 
 export type Positions = {
     [tokenId: string]: Position
+}
+
+// data from scanning Transfer event on NonfungiblePositionManager contract from adress 0x0 to wallet
+export interface LivecycleRecord {
+    livecycleEvent: string
+    blockNumber: number
+    date: string
+    tokenId: bigint
+    amount0: bigint
+    amount1: bigint
 }
