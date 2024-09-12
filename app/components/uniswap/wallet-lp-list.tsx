@@ -1,11 +1,12 @@
 "use client"
 import { ethers } from "ethers"
 import { useEffect, useState, useRef } from "react"
+import { useRouter } from "next/navigation"
 import {
     useWeb3ModalAccount,
     useWeb3ModalProvider,
 } from "@web3modal/ethers/react"
-import { Card, Divider } from "@nextui-org/react"
+import { Button, Card, Divider } from "@nextui-org/react"
 
 import { SupportedChains } from "../../utils/enums"
 
@@ -34,6 +35,7 @@ export function WalletLPList({ network }) {
     const [triggerRefresh, setTriggerRefresh] = useState(false)
 
     const poolsRef = useRef(pools)
+    const router = useRouter()
 
     const { address, chainId } = useWeb3ModalAccount()
     const { walletProvider } = useWeb3ModalProvider()
@@ -258,6 +260,10 @@ export function WalletLPList({ network }) {
         return <div>User doesn&apos;t have any positions.</div>
     }
 
+    const goToLivecycle = (tokenId: string) => {
+        router.push(`/uniswapv3/${tokenId}`)
+    }
+
     return network !== SupportedChains.Unsupported ? (
         <div
             style={{
@@ -319,6 +325,10 @@ export function WalletLPList({ network }) {
                             pool={pools[pooKey]}
                             position={positions[tokenId]}
                         />
+                        <Divider />
+                        <Button onClick={() => goToLivecycle(tokenId)}>
+                            view position livecycle
+                        </Button>
                     </Card>
                 )
             })}

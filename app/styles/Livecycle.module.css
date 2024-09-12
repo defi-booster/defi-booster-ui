@@ -1,0 +1,77 @@
+.main {
+    min-height: 100vh;
+    margin: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.error_div {
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    font-weight: bold;
+}
+
+.livecycle {
+    width: 80vw;
+    text-align: center;
+}
+
+.livecycle .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10vh;
+    padding: 25px;
+}
+
+.livecycle .timeline {
+    margin: 5vh;
+}
+
+.livecycle .date {
+    font-size: 16px;
+}
+
+.livecycle .event {
+    font-size: 18px;
+}
+
+.livecycle .desc {
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .main {
+        margin: 10px;
+    }
+    .livecycle {
+        width: 95vw;
+    }
+
+    .livecycle .title {
+        font-size: 18px;
+    }
+
+    .livecycle .timeline {
+        margin: 2vh;
+    }
+
+    .livecycle .date {
+        font-size: 10px;
+    }
+
+    .livecycle .event {
+        font-size: 14px;
+    }
+
+    .livecycle .desc {
+        font-size: 10px;
+    }
+}

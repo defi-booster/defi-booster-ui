@@ -19,6 +19,11 @@
     "description": "",
     "dependencies": {
         "@coinbase/wallet-sdk": "^4.0.4",
+        "@emotion/react": "^11.13.3",
+        "@emotion/styled": "^11.13.0",
+        "@mui/icons-material": "^6.1.0",
+        "@mui/lab": "^6.0.0-beta.9",
+        "@mui/material": "^6.1.0",
         "@nextui-org/react": "^2.4.6",
         "@uniswap/sdk-core": "^5.3.1",
         "@uniswap/v3-core": "^1.0.1",
