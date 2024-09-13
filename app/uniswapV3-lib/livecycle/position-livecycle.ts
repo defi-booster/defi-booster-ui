@@ -40,7 +40,7 @@ export async function getPositionMintData(
                 // @ts-ignore
                 const eventTokenId = event.args.tokenId.toString()
 
-                // check if out position tokenId is differ than tokenId from event
+                // check if this event is concern to our tokenId
                 if (tokenId !== eventTokenId) {
                     continue
                 }
@@ -66,7 +66,6 @@ export async function getPositionMintData(
 
                 const block = await provider.getBlock(event.blockNumber)
                 const timestamp = block.timestamp
-
                 const date = new Date(timestamp * 1000)
 
                 positionMintInfo = {
@@ -85,7 +84,7 @@ export async function getPositionMintData(
         return positionMintInfo
     } catch (error) {
         console.error(
-            "An error occurred while getting position livecycle:",
+            "An error occurred while getting mint for position livecycle: ",
             error,
         )
         return undefined
@@ -97,30 +96,65 @@ export async function getPositionIncreaseData(
     chainId: number,
     tokenId: string,
     nfpmContract: ethers.Contract,
-    address: string,
 ): Promise<LivecycleRecord[]> {
-    return [
-        {
-            livecycleEvent: LivecycleEvents.INCREASE,
-            blockNumber: 12321321,
-            date: "10/10/2024, 11:07:27 AM",
-            tokenId: BigInt(tokenId),
-            // @ts-ignore
-            amount0: 1000,
-            // @ts-ignore
-            amount1: 1000,
-        },
-        {
-            livecycleEvent: LivecycleEvents.INCREASE,
-            blockNumber: 12321321,
-            date: "13/10/2024, 08:07:27 AM",
-            tokenId: BigInt(tokenId),
-            // @ts-ignore
-            amount0: 1000,
-            // @ts-ignore
-            amount1: 1000,
-        },
-    ]
+    try {
+        const startBlock =
+            idToNonfungiblePostionManagerContractCreationBlockMapping[chainId]
+        const endBlock = await provider.getBlockNumber()
+        let currentStartBlock = startBlock
+        const maxBlockRequests = 20000
+
+        const filter = nfpmContract.filters.IncreaseLiquidity(tokenId)
+
+        let increaseLiquidityInfos: LivecycleRecord[] = []
+
+        while (currentStartBlock <= endBlock) {
+            const currentEndBlock = Math.min(
+                currentStartBlock + maxBlockRequests - 1,
+                endBlock,
+            )
+            const events = await nfpmContract.queryFilter(
+                filter,
+                currentStartBlock,
+                currentEndBlock,
+            )
+
+            for (const event of events) {
+                // @ts-ignore
+                const eventTokenId = event.args.tokenId.toString()
+
+                // check if this event is concern to our tokenId
+                if (tokenId !== eventTokenId) {
+                    continue
+                }
+
+                const block = await provider.getBlock(event.blockNumber)
+                const timestamp = block.timestamp
+                const date = new Date(timestamp * 1000)
+
+                const increaseLiquidityInfo: LivecycleRecord = {
+                    livecycleEvent: LivecycleEvents.INCREASE,
+                    blockNumber: event.blockNumber,
+                    date: date.toLocaleString(),
+                    tokenId: BigInt(tokenId),
+                    // @ts-ignore
+                    amount0: event.args.amount0,
+                    // @ts-ignore
+                    amount1: event.args.amount1,
+                }
+
+                increaseLiquidityInfos.push(increaseLiquidityInfo)
+            }
+            currentStartBlock = currentEndBlock + 1
+        }
+        return increaseLiquidityInfos
+    } catch (error) {
+        console.error(
+            "An error occurred while getting increaseLiquidity for position livecycle: ",
+            error,
+        )
+        return undefined
+    }
 }
 
 export async function getPositionDecreaseData(
@@ -128,30 +162,66 @@ export async function getPositionDecreaseData(
     chainId: number,
     tokenId: string,
     nfpmContract: ethers.Contract,
-    address: string,
 ): Promise<LivecycleRecord[]> {
-    return [
-        {
-            livecycleEvent: LivecycleEvents.DECREASE,
-            blockNumber: 12321321,
-            date: "11/10/2024, 11:07:27 AM",
-            tokenId: BigInt(tokenId),
-            // @ts-ignore
-            amount0: 100,
-            // @ts-ignore
-            amount1: 100,
-        },
-        {
-            livecycleEvent: LivecycleEvents.DECREASE,
-            blockNumber: 12321321,
-            date: "14/10/2024, 11:10:27 AM",
-            tokenId: BigInt(tokenId),
-            // @ts-ignore
-            amount0: 100,
-            // @ts-ignore
-            amount1: 100,
-        },
-    ]
+    try {
+        const startBlock =
+            idToNonfungiblePostionManagerContractCreationBlockMapping[chainId]
+        const endBlock = await provider.getBlockNumber()
+        let currentStartBlock = startBlock
+        const maxBlockRequests = 20000
+
+        const filter = nfpmContract.filters.DecreaseLiquidity(tokenId)
+
+        let decreaseLiquidityInfos: LivecycleRecord[] = []
+
+        while (currentStartBlock <= endBlock) {
+            const currentEndBlock = Math.min(
+                currentStartBlock + maxBlockRequests - 1,
+                endBlock,
+            )
+            const events = await nfpmContract.queryFilter(
+                filter,
+                currentStartBlock,
+                currentEndBlock,
+            )
+
+            for (const event of events) {
+                // @ts-ignore
+                const eventTokenId = event.args.tokenId.toString()
+
+                // check if this event is concern to our tokenId
+                if (tokenId !== eventTokenId) {
+                    continue
+                }
+
+                const block = await provider.getBlock(event.blockNumber)
+                const timestamp = block.timestamp
+                const date = new Date(timestamp * 1000)
+
+                const decreaseLiquidityInfo: LivecycleRecord = {
+                    livecycleEvent: LivecycleEvents.DECREASE,
+                    blockNumber: event.blockNumber,
+                    date: date.toLocaleString(),
+                    tokenId: BigInt(tokenId),
+                    // @ts-ignore
+                    amount0: event.args.amount0,
+                    // @ts-ignore
+                    amount1: event.args.amount1,
+                }
+
+                decreaseLiquidityInfos.push(decreaseLiquidityInfo)
+            }
+
+            currentStartBlock = currentEndBlock + 1
+        }
+        return decreaseLiquidityInfos
+    } catch (error) {
+        console.error(
+            "An error occurred while getting decreaseLiquidity for position livecycle: ",
+            error,
+        )
+        return undefined
+    }
 }
 
 export async function getPositionCollectFeesData(

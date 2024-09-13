@@ -85,14 +85,13 @@ export default function LivecyclePage({ params }) {
                     chainId,
                     tokenId,
                     nfpmContract,
-                    address,
                 )
+
                 const positionDecreaseInfos = await getPositionDecreaseData(
                     provider,
                     chainId,
                     tokenId,
                     nfpmContract,
-                    address,
                 )
                 const positionCollectFeesInfos =
                     await getPositionCollectFeesData(
