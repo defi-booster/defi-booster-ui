@@ -229,30 +229,67 @@ export async function getPositionCollectFeesData(
     chainId: number,
     tokenId: string,
     nfpmContract: ethers.Contract,
-    address: string,
 ): Promise<LivecycleRecord[]> {
-    return [
-        {
-            livecycleEvent: LivecycleEvents.COLLECT_FEES,
-            blockNumber: 12321321,
-            date: "13/10/2024, 11:07:28 AM",
-            tokenId: BigInt(tokenId),
-            // @ts-ignore
-            amount0: 50,
-            // @ts-ignore
-            amount1: 50,
-        },
-        {
-            livecycleEvent: LivecycleEvents.COLLECT_FEES,
-            blockNumber: 12321321,
-            date: "14/10/2024, 11:37:28 AM",
-            tokenId: BigInt(tokenId),
-            // @ts-ignore
-            amount0: 50,
-            // @ts-ignore
-            amount1: 50,
-        },
-    ]
+    try {
+        const startBlock =
+            idToNonfungiblePostionManagerContractCreationBlockMapping[chainId]
+        const endBlock = await provider.getBlockNumber()
+        let currentStartBlock = startBlock
+        const maxBlockRequests = 20000
+
+        const filter = nfpmContract.filters.Collect(tokenId)
+
+        let collectFeesInfos: LivecycleRecord[] = []
+
+        while (currentStartBlock <= endBlock) {
+            const currentEndBlock = Math.min(
+                currentStartBlock + maxBlockRequests - 1,
+                endBlock,
+            )
+            const events = await nfpmContract.queryFilter(
+                filter,
+                currentStartBlock,
+                currentEndBlock,
+            )
+
+            for (const event of events) {
+                // @ts-ignore
+                const eventTokenId = event.args.tokenId.toString()
+
+                // check if this event is concern to our tokenId
+                if (tokenId !== eventTokenId) {
+                    continue
+                }
+
+                const block = await provider.getBlock(event.blockNumber)
+                const timestamp = block.timestamp
+                const date = new Date(timestamp * 1000)
+
+                const collectFeesInfo: LivecycleRecord = {
+                    livecycleEvent: LivecycleEvents.DECREASE,
+                    blockNumber: event.blockNumber,
+                    date: date.toLocaleString(),
+                    tokenId: BigInt(tokenId),
+                    // @ts-ignore
+                    amount0: event.args.amount0,
+                    // @ts-ignore
+                    amount1: event.args.amount1,
+                }
+
+                collectFeesInfos.push(collectFeesInfo)
+            }
+
+            currentStartBlock = currentEndBlock + 1
+        }
+
+        return collectFeesInfos
+    } catch (error) {
+        console.error(
+            "An error occurred while getting Collect for position livecycle: ",
+            error,
+        )
+        return undefined
+    }
 }
 
 export async function getPostionBurnData(
