@@ -99,7 +99,6 @@ export default function LivecyclePage({ params }) {
                         chainId,
                         tokenId,
                         nfpmContract,
-                        address,
                     )
                 const positionBurnInfo = await getPostionBurnData(
                     provider,
