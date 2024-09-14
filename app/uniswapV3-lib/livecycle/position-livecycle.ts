@@ -299,14 +299,60 @@ export async function getPostionBurnData(
     nfpmContract: ethers.Contract,
     address: string,
 ): Promise<LivecycleRecord> {
-    return {
-        livecycleEvent: LivecycleEvents.BURN,
-        blockNumber: 12321321,
-        date: "15/10/2024, 11:07:27 AM",
-        tokenId: BigInt(tokenId),
-        // @ts-ignore
-        amount0: 0,
-        // @ts-ignore
-        amount1: 0,
+    try {
+        const startBlock =
+            idToNonfungiblePostionManagerContractCreationBlockMapping[chainId]
+        const endBlock = await provider.getBlockNumber()
+        let currentStartBlock = startBlock
+        const maxBlockRequests = 20000
+
+        const filter = nfpmContract.filters.Transfer(address, null)
+
+        let positionBurnInfo: LivecycleRecord | undefined
+
+        while (currentStartBlock <= endBlock) {
+            const currentEndBlock = Math.min(
+                currentStartBlock + maxBlockRequests - 1,
+                endBlock,
+            )
+            const events = await nfpmContract.queryFilter(
+                filter,
+                currentStartBlock,
+                currentEndBlock,
+            )
+
+            for (const event of events) {
+                // @ts-ignore
+                const eventTokenId = event.args.tokenId.toString()
+
+                // check if this event is concern to our tokenId
+                if (tokenId !== eventTokenId) {
+                    continue
+                }
+
+                const block = await provider.getBlock(event.blockNumber)
+                const timestamp = block.timestamp
+                const date = new Date(timestamp * 1000)
+
+                positionBurnInfo = {
+                    livecycleEvent: LivecycleEvents.BURN,
+                    blockNumber: event.blockNumber,
+                    date: date.toLocaleString(),
+                    tokenId: BigInt(tokenId),
+                    // @ts-ignore
+                    amount0: liquidityEvent.args.amount0,
+                    // @ts-ignore
+                    amount1: liquidityEvent.args.amount1,
+                }
+            }
+            currentStartBlock = currentEndBlock + 1
+        }
+        return positionBurnInfo
+    } catch (error) {
+        console.error(
+            "An error occurred while getting burn for position livecycle: ",
+            error,
+        )
+        return undefined
     }
 }
