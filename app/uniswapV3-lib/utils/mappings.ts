@@ -9,9 +9,15 @@ export const idToContractsAddressesMapping = {
             "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
         POOL_FACTORY_CONTRACT: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     },
+    11155111: {
+        NONFUNGIBLE_POSITION_MANAGER_CONTRACT:
+            "0x1238536071E1c677A632429e3655c799b22cDA52",
+        POOL_FACTORY_CONTRACT: "0x0227628f3F023bb0B980b67D528571c95c6DaC1c",
+    },
 }
 
 export const idToNonfungiblePostionManagerContractCreationBlockMapping = {
     1: 12369651,
     31337: 12369651,
+    11155111: 3518286,
 }
