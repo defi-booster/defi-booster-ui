@@ -6,3 +6,7 @@ which problems app solves:
     should I leave for gas?
 -   when you add liquidity, often time you don't know which range should I set to not be compromised by impernament loss, what size my position should be in particular range to collect sufficient fees, which pay my gas fees and level impernament loss
 -   when you add liquidity do you actually exactly know if it pays off? maybe better is just keep your ETH, or stake then in liquid staking or run own node is better?
+
+npx hardhat node --fork https://mainnet.chainnodes.org/b0341984-723e-45e5-8b92-567e3c94a372
+
+npx hardhat node --network hardhat

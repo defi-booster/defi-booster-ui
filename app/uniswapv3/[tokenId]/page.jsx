@@ -15,6 +15,20 @@ import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent"
 import Typography from "@mui/material/Typography"
 
 import {
+    collectPosition,
+    collectPool,
+} from "../../uniswapV3-lib/collected-data"
+
+import {
+    calcInvestedAmounts,
+    calcPositionAmounts,
+} from "../../uniswapV3-lib/calc/calc"
+
+import { calcCurrentReserves } from "../../uniswapV3-lib/utils/math"
+
+import config from "../../my.config"
+
+import {
     useWeb3ModalAccount,
     useWeb3ModalProvider,
 } from "@web3modal/ethers/react"
@@ -31,9 +45,9 @@ import {
 import { getNonFungiblePositionManagerContract } from "../../uniswapV3-lib/utils/get-contracts"
 import { SupportedChains } from "../../utils/enums"
 
-import styles from "../../styles/Livecycle.module.css"
+import styles from "../../styles/PositionDetails.module.css"
 
-export default function LivecyclePage({ params }) {
+export default function DetailsPage({ params }) {
     const { tokenId } = params
 
     const isFirstRender = useRef(true)
@@ -42,6 +56,8 @@ export default function LivecyclePage({ params }) {
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(true)
     const [livecycle, setLivecycle] = useState([])
+    const [position, setPosition] = useState()
+    const [pool, setPool] = useState()
 
     const [web3State] = useWeb3StatesContext()
     const { address, chainId } = useWeb3ModalAccount()
@@ -75,7 +91,7 @@ export default function LivecyclePage({ params }) {
 
                 if (positionMintInfo === undefined) {
                     setError(
-                        "Can't detect on chain data, look on inspect -> console, and send error to our support: defi-booster@support.com",
+                        `Can't detect on chain data, look on inspect -> console, and send error to our support: ${config.email}`,
                     )
                     return
                 }
@@ -93,6 +109,7 @@ export default function LivecyclePage({ params }) {
                     tokenId,
                     nfpmContract,
                 )
+
                 const positionCollectFeesInfos =
                     await getPositionCollectFeesData(
                         provider,
@@ -114,39 +131,54 @@ export default function LivecyclePage({ params }) {
                     ...positionDecreaseInfos,
                     ...positionCollectFeesInfos,
                     positionBurnInfo,
-                ].sort((a, b) => {
-                    const parseDate = (dateString) => {
-                        const [datePart, timePart] = dateString.split(", ")
-                        const [day, month, year] = datePart.split("/")
-                        return new Date(`${month}/${day}/${year} ${timePart}`)
-                    }
+                ]
+                    .filter((item) => item !== undefined)
+                    .sort((a, b) => {
+                        const parseDate = (dateString) => {
+                            const [datePart, timePart] = dateString.split(", ")
+                            const [day, month, year] = datePart.split("/")
+                            return new Date(
+                                `${month}/${day}/${year} ${timePart}`,
+                            )
+                        }
 
-                    const dateA = parseDate(a.date)
-                    const dateB = parseDate(b.date)
+                        const dateA = parseDate(a.date)
+                        const dateB = parseDate(b.date)
 
-                    return dateA - dateB
-                })
+                        return dateA - dateB
+                    })
+
+                // get position data - e.g. decimal places for token0/1 will be needed
+                const _position = await collectPosition(
+                    provider,
+                    chainId,
+                    tokenId,
+                )
+
+                const _pool = await collectPool(provider, chainId, _position)
 
                 setLivecycle(_livecycle)
                 setIsLoading(false)
+                setPosition(_position)
+                setPool(_pool)
             })()
         }
     }, [])
 
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false
-            return
-        }
-        if (isSecondRender.current) {
-            isSecondRender.current = false
-            return
-        }
+    // useEffect(() => {
+    //     if (isFirstRender.current) {
+    //         isFirstRender.current = false
+    //         return
+    //     }
+    //     if (isSecondRender.current) {
+    //         isSecondRender.current = false
+    //         return
+    //     }
 
-        setError(
-            "You changed the network or address, so your tokenId is no longer valid. Click 'Choose Protocol' and select the one you would like to explore.",
-        )
-    }, [stableNetwork, stableAddress])
+    //     setError(
+    //         "You changed the network or address, so your tokenId is no longer valid. Click 'Choose Protocol' and select the one you would like to explore.",
+    //     )
+    // }, [stableNetwork, stableAddress])
 
     const emoji = {
         MINT: "🔨",
@@ -154,6 +186,79 @@ export default function LivecyclePage({ params }) {
         DECREASE: "💸",
         COLLECT_FEES: "🐹",
         BURN: "🔥",
+    }
+
+    const getDescription = (event, item) => {
+        let msg = null
+        switch (event) {
+            case "MINT":
+                msg = "Position minted"
+                break
+            case "INCREASE":
+                msg = `Position increase by: 
+                ${Number(ethers.formatUnits(item.amount0, position.token0Decimals)).toFixed(2)}${position.token0Symbol} 
+                ${Number(ethers.formatUnits(item.amount1, position.token1Decimals)).toFixed(2)}${position.token1Symbol}`
+                break
+            case "DECREASE":
+                msg = `Position decrease by: 
+                ${Number(ethers.formatUnits(item.amount0, position.token0Decimals)).toFixed(2)}${position.token0Symbol}
+                ${Number(ethers.formatUnits(item.amount1, position.token1Decimals)).toFixed(2)}${position.token1Symbol}`
+                break
+            case "COLLECT_FEES":
+                msg = `Fees collected: 
+                ${Number(ethers.formatUnits(item.amount0, position.token0Decimals)).toFixed(2)}${position.token0Symbol}
+                ${Number(ethers.formatUnits(item.amount1, position.token1Decimals)).toFixed(2)}${position.token1Symbol}`
+                break
+            case "BURN":
+                msg = `Position transfered, remained: 
+                ${Number(ethers.formatUnits(item.amount0, position.token0Decimals)).toFixed(2)}${position.token0Symbol}
+                ${Number(ethers.formatUnits(item.amount1, position.token1Decimals)).toFixed(2)}${position.token1Symbol}`
+                break
+        }
+        return msg
+    }
+
+    function performCalc(livecycle, position) {
+        // clean and filter rubbish
+        if (livecycle === undefined) {
+            return null
+        }
+
+        // calc amounts of tokens which I put into the pool (and what I withdraw)
+        // it is total investment into the position
+        const increase = livecycle.filter(
+            (item) => item.livecycleEvent === "INCREASE",
+        )
+        const decrease = livecycle.filter(
+            (item) => item.livecycleEvent === "DECREASE",
+        )
+
+        const investAmounts = calcInvestedAmounts(increase, decrease)
+
+        // calc amounts which is in the position,
+        // like current reserves, collected fees, uncollected fees,
+        // cost of transactions during position livecycle
+        const collected = livecycle.filter(
+            (item) => item.livecycleEvent === "COLLECT_FEES",
+        )
+
+        const [reserves_0, reserves_1] = calcCurrentReserves(
+            position.liquidity,
+            pool.sqrtPriceX96,
+            Number(position.tickLower),
+            Number(position.tickUpper),
+        )
+
+        const posAmounts = calcPositionAmounts(
+            position,
+            reserves_0,
+            reserves_1,
+            increase,
+            decrease,
+            collected,
+        )
+
+        return "bleble"
     }
 
     return !error ? (
@@ -165,10 +270,14 @@ export default function LivecyclePage({ params }) {
             {!isLoading && (
                 <div className={styles.livecycle}>
                     <p className={styles.title}>
-                        Lifecycle for position with tokenId: {tokenId}
+                        tokenId: {tokenId} position details
                     </p>
                     <Timeline position="alternate" className={styles.timeline}>
                         {livecycle.map((item, index) => {
+                            if (item === undefined) {
+                                return null
+                            }
+
                             return (
                                 <TimelineItem key={index}>
                                     <TimelineOppositeContent
@@ -202,13 +311,17 @@ export default function LivecyclePage({ params }) {
                                             {emoji[item.livecycleEvent]}
                                         </Typography>
                                         <Typography className={styles.desc}>
-                                            some description
+                                            {getDescription(
+                                                item.livecycleEvent,
+                                                item,
+                                            )}
                                         </Typography>
                                     </TimelineContent>
                                 </TimelineItem>
                             )
                         })}
                     </Timeline>
+                    {performCalc(livecycle, position)}
                 </div>
             )}
         </div>
