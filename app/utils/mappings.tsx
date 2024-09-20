@@ -5,6 +5,7 @@ export const idToChainMapping = {
     1: SupportedChains.Ethereum,
     8453: SupportedChains.Base,
     31337: SupportedChains.Localhost,
+    11155111: SupportedChains.Sepolia,
 }
 
 export const chainIdToIcon = (chainId: number) => {
@@ -13,6 +14,8 @@ export const chainIdToIcon = (chainId: number) => {
     } else if (chainId === 8453) {
         return <NetworkBase size={32} variant="mono" />
     } else if (chainId === 31337) {
+        return <p>👷‍♂️</p>
+    } else if (chainId === 11155111) {
         return <p>👷‍♂️</p>
     } else {
         return <p>🚧</p>

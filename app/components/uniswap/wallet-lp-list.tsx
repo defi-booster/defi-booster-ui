@@ -29,6 +29,8 @@ import { PositionGauge } from "./card-components/gauge"
 
 import { Positions, Pools } from "../../uniswapV3-lib/utils/types"
 
+import styles from "../../styles/uniswapv3/WalletLPLst.module.css"
+
 export function WalletLPList({ network }) {
     const [positions, setPositions] = useState<Positions>({})
     const [pools, setPools] = useState<Pools>({})
@@ -249,15 +251,49 @@ export function WalletLPList({ network }) {
 
     // trigger update for posistions in case if swaps will change position parameters
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            setTriggerRefresh(true)
-        }, 60000)
-
+        let intervalId
+        if (
+            walletProvider !== undefined &&
+            network !== SupportedChains.Unsupported
+        ) {
+            intervalId = setInterval(() => {
+                setTriggerRefresh(true)
+            }, 60000)
+        }
         return () => clearInterval(intervalId)
     }, [])
 
+    if (network === SupportedChains.Unsupported) {
+        let chains = ""
+        for (const chain in SupportedChains) {
+            if (chain === "Unsupported") {
+                continue
+            }
+
+            if (chains === "") {
+                chains = chain
+                continue
+            }
+            chains = chains + ", " + chain
+        }
+        return (
+            <div className={styles.no_positions}>
+                <p className={styles.no_positions_text}>
+                    Unsupported network. Switch to one of the supported
+                    networks: {chains}
+                </p>
+            </div>
+        )
+    }
+
     if (Object.keys(positions).length === 0) {
-        return <div>User doesn&apos;t have any positions.</div>
+        return (
+            <div className={styles.no_positions}>
+                <p className={styles.no_positions_text}>
+                    User doesn&apos;t have any positions.
+                </p>
+            </div>
+        )
     }
 
     const goToLivecycle = (tokenId: string) => {
