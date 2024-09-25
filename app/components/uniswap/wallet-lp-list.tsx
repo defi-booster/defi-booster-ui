@@ -296,7 +296,7 @@ export function WalletLPList({ network }) {
         )
     }
 
-    const goToLivecycle = (tokenId: string) => {
+    const goToDetails = (tokenId: string) => {
         router.push(`/uniswapv3/${tokenId}`)
     }
 
@@ -309,9 +309,9 @@ export function WalletLPList({ network }) {
             className="gap-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
         >
             {Object.keys(positions).map((tokenId, index) => {
-                const pooKey = `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
+                const poolKey = `${positions[tokenId].token0Symbol}${positions[tokenId].token1Symbol}${positions[tokenId].fee}`
 
-                if (pools[pooKey] === undefined) {
+                if (pools[poolKey] === undefined) {
                     return null
                 }
 
@@ -329,27 +329,27 @@ export function WalletLPList({ network }) {
                         />
                         <Divider />
                         <Price
-                            pool={pools[pooKey]}
+                            pool={pools[poolKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <Reserves
-                            pool={pools[pooKey]}
+                            pool={pools[poolKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <Ticks
-                            pool={pools[pooKey]}
+                            pool={pools[poolKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <TickPrices
-                            pool={pools[pooKey]}
+                            pool={pools[poolKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
                         <UncollectedFees
-                            pool={pools[pooKey]}
+                            pool={pools[poolKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
@@ -358,12 +358,12 @@ export function WalletLPList({ network }) {
                         </CardBody>
                         <Divider /> */}
                         <PositionGauge
-                            pool={pools[pooKey]}
+                            pool={pools[poolKey]}
                             position={positions[tokenId]}
                         />
                         <Divider />
-                        <Button onClick={() => goToLivecycle(tokenId)}>
-                            view position livecycle
+                        <Button onClick={() => goToDetails(tokenId)}>
+                            view position details
                         </Button>
                     </Card>
                 )

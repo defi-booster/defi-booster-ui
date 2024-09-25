@@ -68,6 +68,15 @@ export async function getPositionMintData(
                 const timestamp = block.timestamp
                 const date = new Date(timestamp * 1000)
 
+                // Get transaction receipt to calculate fees
+                const transactionReceipt = await provider.getTransactionReceipt(
+                    event.transactionHash,
+                )
+
+                const gasUsed = transactionReceipt.gasUsed
+                const gasPrice = transactionReceipt.gasPrice
+                const feePaid = gasUsed * gasPrice
+
                 positionMintInfo = {
                     livecycleEvent: LivecycleEvents.MINT,
                     blockNumber: event.blockNumber,
@@ -77,6 +86,7 @@ export async function getPositionMintData(
                     amount0: liquidityEvent.args.amount0,
                     // @ts-ignore
                     amount1: liquidityEvent.args.amount1,
+                    feePaid: feePaid,
                 }
             }
             currentStartBlock = currentEndBlock + 1
@@ -132,6 +142,15 @@ export async function getPositionIncreaseData(
                 const timestamp = block.timestamp
                 const date = new Date(timestamp * 1000)
 
+                // Get transaction receipt to calculate fees
+                const transactionReceipt = await provider.getTransactionReceipt(
+                    event.transactionHash,
+                )
+
+                const gasUsed = transactionReceipt.gasUsed
+                const gasPrice = transactionReceipt.gasPrice
+                const feePaid = gasUsed * gasPrice
+
                 const increaseLiquidityInfo: LivecycleRecord = {
                     livecycleEvent: LivecycleEvents.INCREASE,
                     blockNumber: event.blockNumber,
@@ -141,6 +160,7 @@ export async function getPositionIncreaseData(
                     amount0: event.args.amount0,
                     // @ts-ignore
                     amount1: event.args.amount1,
+                    feePaid: feePaid,
                 }
 
                 increaseLiquidityInfos.push(increaseLiquidityInfo)
@@ -198,6 +218,15 @@ export async function getPositionDecreaseData(
                 const timestamp = block.timestamp
                 const date = new Date(timestamp * 1000)
 
+                // Get transaction receipt to calculate fees
+                const transactionReceipt = await provider.getTransactionReceipt(
+                    event.transactionHash,
+                )
+
+                const gasUsed = transactionReceipt.gasUsed
+                const gasPrice = transactionReceipt.gasPrice
+                const feePaid = gasUsed * gasPrice
+
                 const decreaseLiquidityInfo: LivecycleRecord = {
                     livecycleEvent: LivecycleEvents.DECREASE,
                     blockNumber: event.blockNumber,
@@ -207,6 +236,7 @@ export async function getPositionDecreaseData(
                     amount0: event.args.amount0,
                     // @ts-ignore
                     amount1: event.args.amount1,
+                    feePaid: feePaid,
                 }
 
                 decreaseLiquidityInfos.push(decreaseLiquidityInfo)
@@ -265,8 +295,17 @@ export async function getPositionCollectFeesData(
                 const timestamp = block.timestamp
                 const date = new Date(timestamp * 1000)
 
+                // Get transaction receipt to calculate fees
+                const transactionReceipt = await provider.getTransactionReceipt(
+                    event.transactionHash,
+                )
+
+                const gasUsed = transactionReceipt.gasUsed
+                const gasPrice = transactionReceipt.gasPrice
+                const feePaid = gasUsed * gasPrice
+
                 const collectFeesInfo: LivecycleRecord = {
-                    livecycleEvent: LivecycleEvents.DECREASE,
+                    livecycleEvent: LivecycleEvents.COLLECT_FEES,
                     blockNumber: event.blockNumber,
                     date: date.toLocaleString(),
                     tokenId: BigInt(tokenId),
@@ -274,6 +313,7 @@ export async function getPositionCollectFeesData(
                     amount0: event.args.amount0,
                     // @ts-ignore
                     amount1: event.args.amount1,
+                    feePaid: feePaid,
                 }
 
                 collectFeesInfos.push(collectFeesInfo)
@@ -334,6 +374,15 @@ export async function getPostionBurnData(
                 const timestamp = block.timestamp
                 const date = new Date(timestamp * 1000)
 
+                // Get transaction receipt to calculate fees
+                const transactionReceipt = await provider.getTransactionReceipt(
+                    event.transactionHash,
+                )
+
+                const gasUsed = transactionReceipt.gasUsed
+                const gasPrice = transactionReceipt.gasPrice
+                const feePaid = gasUsed * gasPrice
+
                 positionBurnInfo = {
                     livecycleEvent: LivecycleEvents.BURN,
                     blockNumber: event.blockNumber,
@@ -343,6 +392,7 @@ export async function getPostionBurnData(
                     amount0: liquidityEvent.args.amount0,
                     // @ts-ignore
                     amount1: liquidityEvent.args.amount1,
+                    feePaid: feePaid,
                 }
             }
             currentStartBlock = currentEndBlock + 1

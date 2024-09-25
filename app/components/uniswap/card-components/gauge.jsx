@@ -18,19 +18,30 @@ export function PositionGauge({ pool, position }) {
         Number(position.tickLower),
         Number(position.token0Decimals),
         Number(position.token1Decimals),
-    ).token1Token0Price.toFixed(0)
+    ).token1Token0Price
 
     const priceTickCurrent = fromTicksToHumanReadablePrice(
         Number(pool.tick),
         Number(position.token0Decimals),
         Number(position.token1Decimals),
-    ).token1Token0Price.toFixed(0)
+    ).token1Token0Price
 
     const priceTickUpper = fromTicksToHumanReadablePrice(
         Number(position.tickUpper),
         Number(position.token0Decimals),
         Number(position.token1Decimals),
-    ).token1Token0Price.toFixed(0)
+    ).token1Token0Price
+
+    const formatNumber = (value) => {
+        return value.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 6,
+        })
+    }
+
+    const priceTickLowerFormatted = formatNumber(priceTickLower)
+    const priceTickCurrentFormatted = formatNumber(priceTickCurrent)
+    const priceTickUpperFormatted = formatNumber(priceTickUpper)
 
     const inRange = isInRange(
         Number(position.tickLower),
@@ -44,8 +55,8 @@ export function PositionGauge({ pool, position }) {
                 type: "gauge",
                 startAngle: 195,
                 endAngle: -15,
-                min: priceTickLower,
-                max: priceTickUpper,
+                min: priceTickLowerFormatted,
+                max: priceTickUpperFormatted,
                 splitNumber: 2,
                 itemStyle: {
                     color: "#6BBE44",
@@ -105,7 +116,7 @@ export function PositionGauge({ pool, position }) {
                 },
                 data: [
                     {
-                        value: priceTickCurrent,
+                        value: priceTickCurrentFormatted,
                     },
                 ],
             },

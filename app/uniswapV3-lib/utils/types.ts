@@ -46,4 +46,11 @@ export interface LivecycleRecord {
     tokenId: bigint
     amount0: bigint
     amount1: bigint
+    feePaid: bigint
+}
+
+// data calculated from position metrics
+export interface Calc {
+    amount0WhenHold: bigint
+    amount1WhenHold: bigint
 }

@@ -67,18 +67,14 @@ export function calcCurrentReserves(
     sqrtPriceX96: bigint,
     tickLower: number,
     tickUpper: number,
-    decimals0: number,
-    decimals1: number,
 ) {
     /**
-     * @notice calculate current reserves in human readable format
+     * @notice calculate current reserves in the smallest units of the token
      * @dev
      * @param {bigint} suppliedLiquidity
      * @param {bigint} sqrtPriceX96
      * @param {number} tickLow
      * @param {number} tickUpper
-     * @param {number} decimals0
-     * @param {number} decimals1
      */
     let sqrtRatioA = Math.sqrt(1.0001 ** tickLower)
     let sqrtRatioB = Math.sqrt(1.0001 ** tickUpper)
@@ -106,10 +102,7 @@ export function calcCurrentReserves(
         )
     }
 
-    let amountHuman_0 = (amount0 / 10 ** decimals0).toFixed(8)
-    let amountHuman_1 = (amount1 / 10 ** decimals1).toFixed(8)
-
-    return [amountHuman_0, amountHuman_1]
+    return [BigInt(amount0), BigInt(amount1)]
 }
 
 export function sqrtPriceX96ToTicks(sqrtPriceX96: bigint) {
