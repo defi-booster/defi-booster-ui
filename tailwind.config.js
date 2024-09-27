@@ -17,7 +17,11 @@ module.exports = {
                     colors: {
                         primary: {
                             DEFAULT: "#FFFFFF",
-                            // DEFAULT: "#6BBE44",
+                            foreground: "#000000",
+                        },
+                        danger: "#D40000",
+                        success: {
+                            DEFAULT: "#BEF264",
                             foreground: "#000000",
                         },
                         focus: "#BEF264",
@@ -29,6 +33,11 @@ module.exports = {
                         primary: {
                             // DEFAULT: "#D40000",
                             DEFAULT: "#000000",
+                            foreground: "#000000",
+                        },
+                        danger: "#D40000",
+                        success: {
+                            DEFAULT: "#BEF264",
                             foreground: "#000000",
                         },
                         focus: "#BEF264",
