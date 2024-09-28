@@ -41,6 +41,7 @@ export const ConnectButton = () => {
     // nextui hooks
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
+    // set current network
     useEffect(() => {
         const netName = getNetworkNameFromID(chainId)
         setNetwork(netName)
@@ -49,6 +50,18 @@ export const ConnectButton = () => {
             currentNetwork: netName,
         }))
     }, [chainId])
+
+    // handle sign message
+    useEffect(() => {
+        if (isConnected && address) {
+            const signed = localStorage.getItem(`isSigned_${address}`)
+
+            if (signed !== "true") {
+                const provider = new ethers.BrowserProvider(walletProvider)
+                signMessage(provider, address)
+            }
+        }
+    }, [isConnected, address])
 
     const signMessage = async (
         provider: ethers.BrowserProvider,
@@ -70,7 +83,7 @@ export const ConnectButton = () => {
             const signature = await signer.signMessage(message)
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/signature/verify`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/signature/verify`,
                 {
                     method: "POST",
                     headers: {
@@ -82,6 +95,7 @@ export const ConnectButton = () => {
 
             if (response.ok) {
                 console.log("Signature verified and data processed!")
+                localStorage.setItem(`isSigned_${address}`, "true")
             } else {
                 setSignError("Verification failed!")
                 onOpen()
@@ -97,14 +111,6 @@ export const ConnectButton = () => {
             setIsSigning(false)
         }
     }
-
-    // handle sign message
-    useEffect(() => {
-        if (isConnected) {
-            const provider = new ethers.BrowserProvider(walletProvider)
-            signMessage(provider, address)
-        }
-    }, [isConnected])
 
     return (
         <div>
