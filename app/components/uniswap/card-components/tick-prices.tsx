@@ -1,6 +1,6 @@
 import { CardBody } from "@nextui-org/react"
 
-import { fromTicksToHumanReadablePrice } from "../../../uniswapV3-lib/utils/math"
+import { fromTicksToHumanReadablePrice } from "../../../../libs/uniswapv3/utils/math"
 
 export const TickPrices = ({ pool, position }) => {
     const priceTickLower = `${fromTicksToHumanReadablePrice(

@@ -1,22 +1,23 @@
 import { ethers } from "ethers"
 import { CardBody } from "@nextui-org/react"
 
-import { calcCurrentReserves } from "../../../uniswapV3-lib/utils/math"
+import { calcCurrentReserves } from "../../../../libs/uniswapv3/utils/math"
 
 export const Reserves = ({ pool, position }) => {
     const [reserves_0, reserves_1] = calcCurrentReserves(
-        position.liquidity,
-        pool.sqrtPriceX96,
+        BigInt(position.liquidity),
+        BigInt(pool.sqrtPriceX96),
         Number(position.tickLower),
         Number(position.tickUpper),
     )
+
     const formattedReserves_0 = ethers.formatUnits(
         reserves_0,
-        position.token0Decimals,
+        Number(position.token0Decimals),
     )
     const formattedReserves_1 = ethers.formatUnits(
         reserves_1,
-        position.token1Decimals,
+        Number(position.token1Decimals),
     )
 
     return (

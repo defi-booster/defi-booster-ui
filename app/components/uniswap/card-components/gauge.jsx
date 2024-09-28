@@ -7,7 +7,7 @@ import { CardBody } from "@nextui-org/react"
 import {
     fromTicksToHumanReadablePrice,
     isInRange,
-} from "../../../uniswapV3-lib/utils/math"
+} from "../../../../libs/uniswapv3/utils/math"
 
 export function PositionGauge({ pool, position }) {
     const { theme } = useTheme()

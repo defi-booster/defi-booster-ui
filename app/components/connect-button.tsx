@@ -1,5 +1,5 @@
 "use client"
-import { ethers } from "ethers"
+import { ethers } from "defi-booster-shared"
 import React, { useEffect, useState } from "react"
 import {
     Button,
@@ -17,17 +17,13 @@ import {
     useWeb3ModalAccount,
     useWeb3ModalProvider,
 } from "@web3modal/ethers/react"
-import config from "../my.config"
-import { getNetworkNameFromID } from "../utils/utils"
-import { SupportedChains } from "../utils/enums"
+import config from "../../my.config"
+import { getNetworkNameFromID } from "../../libs/networks_utils"
 import { useWeb3StatesContext } from "../../context/web3states"
 import { v4 as uuidv4 } from "uuid"
 
 export const ConnectButton = () => {
     // states
-    const [network, setNetwork] = useState<SupportedChains>(
-        SupportedChains.Unsupported,
-    )
     const [signError, setSignError] = useState<string | null>(null)
     const [isSigning, setIsSigning] = useState(false)
 
@@ -44,7 +40,6 @@ export const ConnectButton = () => {
     // set current network
     useEffect(() => {
         const netName = getNetworkNameFromID(chainId)
-        setNetwork(netName)
         setWeb3State((prev) => ({
             ...prev,
             currentNetwork: netName,
