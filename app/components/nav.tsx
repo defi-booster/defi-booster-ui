@@ -29,9 +29,24 @@ import {
 
 import { useWeb3ModalAccount } from "@web3modal/ethers/react"
 import { useWeb3StatesContext } from "../../context/web3states"
-import { chainIdToIcon } from "../utils/mappings"
+
+import { NetworkEthereum, NetworkBase } from "@web3icons/react"
 
 import styles from "../styles/Nav.module.css"
+
+export const chainIdToIcon = (chainId: number) => {
+    if (chainId === 1) {
+        return <NetworkEthereum size={32} variant="mono" />
+    } else if (chainId === 8453) {
+        return <NetworkBase size={32} variant="mono" />
+    } else if (chainId === 31337) {
+        return <p>👷‍♂️</p>
+    } else if (chainId === 11155111) {
+        return <p>👷‍♂️</p>
+    } else {
+        return <p>🚧</p>
+    }
+}
 
 export const Nav = () => {
     const icons = {

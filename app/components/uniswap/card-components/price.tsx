@@ -1,6 +1,6 @@
 import { CardBody } from "@nextui-org/react"
 
-import { fromsqrtPriceX96ToHumanReadable } from "../../../uniswapV3-lib/utils/math"
+import { fromsqrtPriceX96ToHumanReadable } from "../../../../libs/uniswapv3/utils/math"
 
 export const Price = ({ pool, position }) => {
     const sqrtPriceX96 = pool.sqrtPriceX96

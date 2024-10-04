@@ -1,5 +1,5 @@
 "use client"
-import { ethers } from "ethers"
+import { ethers } from "defi-booster-shared"
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
@@ -7,17 +7,6 @@ import {
     useWeb3ModalProvider,
 } from "@web3modal/ethers/react"
 import { Button, Card, Divider } from "@nextui-org/react"
-
-import { SupportedChains } from "../../utils/enums"
-
-import { getNonFungiblePositionManagerContract } from "../../uniswapV3-lib/utils/get-contracts"
-
-import {
-    collectPosition,
-    collectPositions,
-    collectPool,
-    collectPools,
-} from "../../uniswapV3-lib/collected-data"
 
 import { Header } from "./card-components/header"
 import { Price } from "./card-components/price"
@@ -27,18 +16,35 @@ import { TickPrices } from "./card-components/tick-prices"
 import { UncollectedFees } from "./card-components/uncollected-fees"
 import { PositionGauge } from "./card-components/gauge"
 
-import { Positions, Pools } from "../../uniswapV3-lib/utils/types"
+import config from "../../../my.config"
+
+import { UNISWAP_V3_TPositions, UNISWAP_V3_TPools } from "defi-booster-shared"
+import { EUniswapV3SupportedChains } from "defi-booster-shared"
+import { getNonFungiblePositionManagerContract } from "defi-booster-shared"
+
+import {
+    fetchPosition,
+    fetchPool,
+    fetchPositionsAndPools,
+} from "../../api/uniswapv3"
 
 import styles from "../../styles/uniswapv3/WalletLPLst.module.css"
 
 export function WalletLPList({ network }) {
-    const [positions, setPositions] = useState<Positions>({})
-    const [pools, setPools] = useState<Pools>({})
+    // states
+    const [positions, setPositions] = useState<UNISWAP_V3_TPositions>({})
+    const [pools, setPools] = useState<UNISWAP_V3_TPools>({})
     const [triggerRefresh, setTriggerRefresh] = useState(false)
+    const [isNetSupported, setIsNetSupported] = useState(true)
+    const [loading, setLoading] = useState(true)
+    const [serverError, setServerError] = useState("")
+    const [positionsAndPoolsLoaded, setPositionsAndPoolsLoaded] =
+        useState(false)
 
     const poolsRef = useRef(pools)
     const router = useRouter()
 
+    // web3 hooks
     const { address, chainId } = useWeb3ModalAccount()
     const { walletProvider } = useWeb3ModalProvider()
 
@@ -47,39 +53,109 @@ export function WalletLPList({ network }) {
     }, [pools])
 
     useEffect(() => {
-        if (
-            walletProvider !== undefined &&
-            network !== SupportedChains.Unsupported
-        ) {
-            const provider = new ethers.BrowserProvider(walletProvider)
-
+        if (walletProvider !== undefined) {
+            setLoading(true)
+            setPositionsAndPoolsLoaded(false)
             ;(async () => {
-                const positions = await collectPositions(
-                    provider,
-                    chainId,
-                    address,
-                )
+                try {
+                    const response = await fetchPositionsAndPools(
+                        chainId,
+                        address,
+                    )
 
-                const _pools = await collectPools(provider, chainId, positions)
-
-                setPositions(positions)
-                setPools(_pools)
+                    setPositions(response.positions)
+                    setPools(response.pools)
+                    setIsNetSupported(true)
+                    setServerError("")
+                } catch (error) {
+                    if (
+                        error.message ===
+                        `Chain ID ${chainId} is not supported.`
+                    ) {
+                        setIsNetSupported(false)
+                        console.log(error)
+                    } else if (error.message === "Failed to fetch data") {
+                        console.log(error)
+                        setServerError(
+                            `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                        )
+                    } else {
+                        console.log(error)
+                        setServerError(
+                            `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                        )
+                    }
+                } finally {
+                    setPositionsAndPoolsLoaded(true)
+                }
             })()
         }
     }, [walletProvider, network, address])
 
+    // let's check if we have everyting to start
     useEffect(() => {
-        if (
-            walletProvider !== undefined &&
-            network !== SupportedChains.Unsupported
-        ) {
-            const provider = new ethers.BrowserProvider(walletProvider)
+        if (positionsAndPoolsLoaded) {
+            setLoading(false)
+        }
+    }, [positionsAndPoolsLoaded])
 
+    // trigger update for posistions in case if swaps will change position parameters
+    useEffect(() => {
+        let intervalId
+        if (walletProvider !== undefined) {
+            intervalId = setInterval(() => {
+                setTriggerRefresh(true)
+            }, 60000)
+        }
+        return () => clearInterval(intervalId)
+    }, [])
+
+    // every 60 s refresh pools and positions in case of any changes like e.g. swaps which case change in reserves
+    useEffect(() => {
+        if (triggerRefresh && walletProvider !== undefined) {
+            ;(async () => {
+                try {
+                    const response = await fetchPositionsAndPools(
+                        chainId,
+                        address,
+                    )
+
+                    setPositions(response.positions)
+                    setPools(response.pools)
+                    setIsNetSupported(true)
+                    setServerError("")
+                } catch (error) {
+                    if (
+                        error.message ===
+                        `Chain ID ${chainId} is not supported.`
+                    ) {
+                        setIsNetSupported(false)
+                        console.log(error)
+                    } else if (error.message === "Failed to fetch data") {
+                        console.log(error)
+                        setServerError(
+                            `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                        )
+                    } else {
+                        console.log(error)
+                        setServerError(
+                            `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                        )
+                    }
+                }
+            })()
+
+            setTriggerRefresh(false)
+        }
+    }, [triggerRefresh])
+
+    useEffect(() => {
+        if (walletProvider !== undefined && isNetSupported) {
+            const provider = new ethers.BrowserProvider(walletProvider)
             const nfpmContract = getNonFungiblePositionManagerContract(
                 provider,
                 chainId,
             )
-
             const handleTransfer = (
                 from: string,
                 to: string,
@@ -89,42 +165,69 @@ export function WalletLPList({ network }) {
                 console.log(
                     `transfer event detected: from ${from} to ${to} for tokenId ${tokenId}`,
                 )
-
                 if (
                     from === ethers.ZeroAddress &&
                     to.toLowerCase() === address.toLowerCase()
                 ) {
                     console.log(`Mint event detected for tokenId ${tokenId}`)
                     ;(async () => {
-                        const position = await collectPosition(
-                            provider,
-                            chainId,
-                            tokenId,
-                        )
-
-                        setPositions((prev) => ({
-                            ...prev,
-                            [`${tokenId}`]: position,
-                        }))
-
-                        // check if pool is exists - if not collect
-                        const _pools = poolsRef.current
-                        if (
-                            _pools[
-                                `${position.token0Symbol}${position.token1Symbol}${String(position.fee)}`
-                            ] === undefined
-                        ) {
-                            const pool = await collectPool(
-                                provider,
+                        try {
+                            const posResponse = await fetchPosition(
                                 chainId,
-                                position,
+                                String(tokenId),
                             )
-
-                            setPools((prev) => ({
+                            setPositions((prev) => ({
                                 ...prev,
-                                [`${position.token0Symbol}${position.token1Symbol}${position.fee}`]:
-                                    pool,
+                                [`${tokenId}`]: posResponse.position,
                             }))
+                            setIsNetSupported(true)
+                            setServerError("")
+                            // check if pool is exists
+                            const _pools = poolsRef.current
+                            if (
+                                _pools[
+                                    `${posResponse.position.token0Symbol}${posResponse.position.token1Symbol}${String(posResponse.position.fee)}`
+                                ] === undefined
+                            ) {
+                                const poolResponse = await fetchPool(
+                                    chainId,
+                                    posResponse.position.token0Address,
+                                    posResponse.position.token1Address,
+                                    posResponse.position.token0Symbol,
+                                    posResponse.position.token1Symbol,
+                                    posResponse.position.token0Decimals,
+                                    posResponse.position.token1Decimals,
+                                    posResponse.position.fee,
+                                    posResponse.position.tickUpper,
+                                    posResponse.position.tickLower,
+                                )
+
+                                setPools((prev) => ({
+                                    ...prev,
+                                    [`${posResponse.position.token0Symbol}${posResponse.position.token1Symbol}${posResponse.position.fee}`]:
+                                        poolResponse.pool,
+                                }))
+                            }
+                        } catch (error) {
+                            if (
+                                error.message ===
+                                `Chain ID ${chainId} is not supported.`
+                            ) {
+                                setIsNetSupported(false)
+                                console.log(error)
+                            } else if (
+                                error.message === "Failed to fetch data"
+                            ) {
+                                console.log(error)
+                                setServerError(
+                                    `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                                )
+                            } else {
+                                console.log(error)
+                                setServerError(
+                                    `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                                )
+                            }
                         }
                     })()
                 } else if (from.toLowerCase() === address.toLowerCase()) {
@@ -138,7 +241,6 @@ export function WalletLPList({ network }) {
                     })()
                 }
             }
-
             const handleIncreaseLiquidity = (
                 tokenId: bigint,
                 liquidity: bigint,
@@ -149,20 +251,40 @@ export function WalletLPList({ network }) {
                 console.log(
                     `increaseLiquidity event detected by amounts ${amount0} and ${amount1} for tokenId ${tokenId}`,
                 )
+                // lets collect data for only one position - this one on which we increase liquidity
                 ;(async () => {
-                    const position = await collectPosition(
-                        provider,
-                        chainId,
-                        tokenId,
-                    )
-
-                    setPositions((prev) => ({
-                        ...prev,
-                        [`${tokenId}`]: position,
-                    }))
+                    try {
+                        const response = await fetchPosition(
+                            chainId,
+                            String(tokenId),
+                        )
+                        setPositions((prev) => ({
+                            ...prev,
+                            [`${tokenId}`]: response.position,
+                        }))
+                        setIsNetSupported(true)
+                        setServerError("")
+                    } catch (error) {
+                        if (
+                            error.message ===
+                            `Chain ID ${chainId} is not supported.`
+                        ) {
+                            setIsNetSupported(false)
+                            console.log(error)
+                        } else if (error.message === "Failed to fetch data") {
+                            console.log(error)
+                            setServerError(
+                                `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                            )
+                        } else {
+                            console.log(error)
+                            setServerError(
+                                `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                            )
+                        }
+                    }
                 })()
             }
-
             const handleDecreaseLiquidity = (
                 tokenId: bigint,
                 liquidity: bigint,
@@ -173,20 +295,40 @@ export function WalletLPList({ network }) {
                 console.log(
                     `decreaseLiquidity event detected by amounts ${amount0} and ${amount1} for tokenId ${tokenId}`,
                 )
+                // lets collect data for only one position - this one on which we decrease liquidity
                 ;(async () => {
-                    const position = await collectPosition(
-                        provider,
-                        chainId,
-                        tokenId,
-                    )
-
-                    setPositions((prev) => ({
-                        ...prev,
-                        [`${tokenId}`]: position,
-                    }))
+                    try {
+                        const response = await fetchPosition(
+                            chainId,
+                            String(tokenId),
+                        )
+                        setPositions((prev) => ({
+                            ...prev,
+                            [`${tokenId}`]: response.position,
+                        }))
+                        setIsNetSupported(true)
+                        setServerError("")
+                    } catch (error) {
+                        if (
+                            error.message ===
+                            `Chain ID ${chainId} is not supported.`
+                        ) {
+                            setIsNetSupported(false)
+                            console.log(error)
+                        } else if (error.message === "Failed to fetch data") {
+                            console.log(error)
+                            setServerError(
+                                `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                            )
+                        } else {
+                            console.log(error)
+                            setServerError(
+                                `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                            )
+                        }
+                    }
                 })()
             }
-
             const handleCollect = (
                 tokenId: bigint,
                 amount0: bigint,
@@ -196,25 +338,44 @@ export function WalletLPList({ network }) {
                 console.log(
                     `collect fees event detected by amounts ${amount0} and ${amount1} for tokenId ${tokenId}`,
                 )
+                // lets collect data for only one position - this one on which we collect fees
                 ;(async () => {
-                    const position = await collectPosition(
-                        provider,
-                        chainId,
-                        tokenId,
-                    )
-
-                    setPositions((prev) => ({
-                        ...prev,
-                        [`${tokenId}`]: position,
-                    }))
+                    try {
+                        const response = await fetchPosition(
+                            chainId,
+                            String(tokenId),
+                        )
+                        setPositions((prev) => ({
+                            ...prev,
+                            [`${tokenId}`]: response.position,
+                        }))
+                        setIsNetSupported(true)
+                        setServerError("")
+                    } catch (error) {
+                        if (
+                            error.message ===
+                            `Chain ID ${chainId} is not supported.`
+                        ) {
+                            setIsNetSupported(false)
+                            console.log(error)
+                        } else if (error.message === "Failed to fetch data") {
+                            console.log(error)
+                            setServerError(
+                                `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                            )
+                        } else {
+                            console.log(error)
+                            setServerError(
+                                `Failed to fetch data, probably server issue, look on inspect -> console, and send error to our support: ${config.email}`,
+                            )
+                        }
+                    }
                 })()
             }
-
             nfpmContract.on("Transfer", handleTransfer)
             nfpmContract.on("IncreaseLiquidity", handleIncreaseLiquidity)
             nfpmContract.on("DecreaseLiquidity", handleDecreaseLiquidity)
             nfpmContract.on("Collect", handleCollect)
-
             return () => {
                 nfpmContract.off("Transfer", handleTransfer)
                 nfpmContract.off("IncreaseLiquidity", handleIncreaseLiquidity)
@@ -224,58 +385,34 @@ export function WalletLPList({ network }) {
         }
     }, [walletProvider, network, address])
 
-    useEffect(() => {
-        if (
-            triggerRefresh &&
-            walletProvider !== undefined &&
-            network !== SupportedChains.Unsupported
-        ) {
-            const provider = new ethers.BrowserProvider(walletProvider)
+    // wait untill all needed data are fetched
+    if (loading) return <div>Loading ...</div>
 
-            ;(async () => {
-                const positions = await collectPositions(
-                    provider,
-                    chainId,
-                    address,
-                )
+    // if there is problem with server, display message to user
+    if (serverError) {
+        return (
+            <div className={styles.error_div}>
+                <p className={styles.error}>{serverError}</p>
+            </div>
+        )
+    }
 
-                const _pools = await collectPools(provider, chainId, positions)
-
-                setPositions(positions)
-                setPools(_pools)
-            })()
-
-            setTriggerRefresh(false)
-        }
-    }, [triggerRefresh])
-
-    // trigger update for posistions in case if swaps will change position parameters
-    useEffect(() => {
-        let intervalId
-        if (
-            walletProvider !== undefined &&
-            network !== SupportedChains.Unsupported
-        ) {
-            intervalId = setInterval(() => {
-                setTriggerRefresh(true)
-            }, 60000)
-        }
-        return () => clearInterval(intervalId)
-    }, [])
-
-    if (network === SupportedChains.Unsupported) {
+    // in case of unsupported network - displlay message to user about it.
+    if (!isNetSupported) {
         let chains = ""
-        for (const chain in SupportedChains) {
-            if (chain === "Unsupported") {
+        const networks = Object.values(EUniswapV3SupportedChains)
+        for (const chain in networks) {
+            if (networks[chain] === "Unsupported") {
                 continue
             }
 
             if (chains === "") {
-                chains = chain
+                chains = networks[chain]
                 continue
             }
-            chains = chains + ", " + chain
+            chains = chains + ", " + networks[chain]
         }
+
         return (
             <div className={styles.no_positions}>
                 <p className={styles.no_positions_text}>
@@ -286,6 +423,7 @@ export function WalletLPList({ network }) {
         )
     }
 
+    // if user doesn't have any position - display message about it
     if (Object.keys(positions).length === 0) {
         return (
             <div className={styles.no_positions}>
@@ -300,7 +438,7 @@ export function WalletLPList({ network }) {
         router.push(`/uniswapv3/${tokenId}`)
     }
 
-    return network !== SupportedChains.Unsupported ? (
+    return isNetSupported ? (
         <div
             style={{
                 margin: "20px",
@@ -361,7 +499,6 @@ export function WalletLPList({ network }) {
                             pool={pools[poolKey]}
                             position={positions[tokenId]}
                         />
-                        <Divider />
                         <Button onClick={() => goToDetails(tokenId)}>
                             view position details
                         </Button>

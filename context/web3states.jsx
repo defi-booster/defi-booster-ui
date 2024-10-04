@@ -2,13 +2,13 @@
 
 import { createContext, useContext, useState } from "react"
 
-import { SupportedChains } from "../app/utils/enums"
+import { getNetworkNameFromID } from "../libs/networks_utils"
 
 const Context = createContext()
 
 export function Web3StatesProvider({ children }) {
     const [web3State, setWeb3State] = useState({
-        currentNetwork: SupportedChains.Unsupported,
+        currentNetwork: getNetworkNameFromID(1), // default Ethereum mainnet
     })
 
     return (
