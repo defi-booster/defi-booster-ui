@@ -1,30 +1,39 @@
 import { ethers } from "ethers"
 import { CardBody } from "@nextui-org/react"
 
-import { calcCurrentReserves } from "../../../../libs/uniswapv3/utils/math"
+import { calcCurrentReserves } from "defi-booster-shared"
 
-export const Reserves = ({ pool, position }) => {
+export const Reserves = ({
+    position_liquidity,
+    sqrtPriceX96,
+    tickLower,
+    tickUpper,
+    token0Decimals,
+    token1Decimals,
+    token0Symbol,
+    token1Symbol,
+}) => {
     const [reserves_0, reserves_1] = calcCurrentReserves(
-        BigInt(position.liquidity),
-        BigInt(pool.sqrtPriceX96),
-        Number(position.tickLower),
-        Number(position.tickUpper),
+        BigInt(position_liquidity),
+        BigInt(sqrtPriceX96),
+        Number(tickLower),
+        Number(tickUpper),
     )
 
     const formattedReserves_0 = ethers.formatUnits(
         reserves_0,
-        Number(position.token0Decimals),
+        Number(token0Decimals),
     )
     const formattedReserves_1 = ethers.formatUnits(
         reserves_1,
-        Number(position.token1Decimals),
+        Number(token1Decimals),
     )
 
     return (
         <CardBody>
             <p>current reserves:</p>
-            <p>{`${formattedReserves_0} ${position.token0Symbol}`}</p>
-            <p>{`${formattedReserves_1} ${position.token1Symbol}`}</p>
+            <p>{`${formattedReserves_0} ${token0Symbol}`}</p>
+            <p>{`${formattedReserves_1} ${token1Symbol}`}</p>
         </CardBody>
     )
 }

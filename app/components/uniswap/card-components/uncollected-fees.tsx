@@ -1,27 +1,44 @@
 import { CardBody } from "@nextui-org/react"
 
-import { calcUncollectedFees } from "../../../../libs/uniswapv3/utils/math"
+import { calcUncollectedFees } from "defi-booster-shared"
 
-export const UncollectedFees = ({ pool, position }) => {
+export const UncollectedFees = ({
+    position_liquidity,
+    pool_feeGrowthGlobalX128_0,
+    pool_feeGrowthGlobalX128_1,
+    pool_tickUpperFeeGrowthOutsideX128_0,
+    pool_tickUpperFeeGrowthOutsideX128_1,
+    pool_tickLowerFeeGrowthOutsideX128_0,
+    pool_tickLowerFeeGrowthOutsideX128_1,
+    position_feeGrowthInsideLastX128_0,
+    position_feeGrowthInsideLastX128_1,
+    tickUpper,
+    tickLower,
+    pool_tick,
+    token0Decimals,
+    token1Decimals,
+    token0Symbol,
+    token1Symbol,
+}) => {
     const [uncollectedFees_0, uncollectedFees_1] = calcUncollectedFees(
-        BigInt(position.liquidity),
-        BigInt(pool.feeGrowthGlobalX128_0),
-        BigInt(pool.feeGrowthGlobalX128_1),
-        BigInt(pool.tickUpperFeeGrowthOutsideX128_0),
-        BigInt(pool.tickUpperFeeGrowthOutsideX128_1),
-        BigInt(pool.tickLowerFeeGrowthOutsideX128_0),
-        BigInt(pool.tickLowerFeeGrowthOutsideX128_1),
-        BigInt(position.feeGrowthInsideLastX128_0),
-        BigInt(position.feeGrowthInsideLastX128_1),
-        Number(position.tickUpper),
-        Number(position.tickLower),
-        Number(pool.tick),
-        Number(position.token0Decimals),
-        Number(position.token1Decimals),
+        BigInt(position_liquidity),
+        BigInt(pool_feeGrowthGlobalX128_0),
+        BigInt(pool_feeGrowthGlobalX128_1),
+        BigInt(pool_tickUpperFeeGrowthOutsideX128_0),
+        BigInt(pool_tickUpperFeeGrowthOutsideX128_1),
+        BigInt(pool_tickLowerFeeGrowthOutsideX128_0),
+        BigInt(pool_tickLowerFeeGrowthOutsideX128_1),
+        BigInt(position_feeGrowthInsideLastX128_0),
+        BigInt(position_feeGrowthInsideLastX128_1),
+        Number(tickUpper),
+        Number(tickLower),
+        Number(pool_tick),
+        Number(token0Decimals),
+        Number(token1Decimals),
     )
 
-    const uncollectedFeesToken0 = `${uncollectedFees_0} ${position.token0Symbol}`
-    const uncollectedFeesToken1 = `${uncollectedFees_1} ${position.token1Symbol}`
+    const uncollectedFeesToken0 = `${uncollectedFees_0} ${token0Symbol}`
+    const uncollectedFeesToken1 = `${uncollectedFees_1} ${token1Symbol}`
 
     return (
         <CardBody>

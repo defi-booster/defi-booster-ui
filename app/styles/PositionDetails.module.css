@@ -6,6 +6,25 @@
     align-items: center;
 }
 
+.no_positions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+.no_positions_text {
+    text-align: center;
+    font-weight: bold;
+}
+
 .error_div {
     height: 80vh;
     display: flex;

@@ -18,7 +18,8 @@ import {
     useWeb3ModalProvider,
 } from "@web3modal/ethers/react"
 import config from "../../my.config"
-import { getNetworkNameFromID } from "../../libs/networks_utils"
+import { mapping_idToChain } from "defi-booster-shared"
+import { api_sendSignatureToVerify } from "../api_rest/requests"
 import { useWeb3StatesContext } from "../../context/web3states"
 import { v4 as uuidv4 } from "uuid"
 
@@ -39,7 +40,7 @@ export const ConnectButton = () => {
 
     // set current network
     useEffect(() => {
-        const netName = getNetworkNameFromID(chainId)
+        const netName = mapping_idToChain[chainId]
         setWeb3State((prev) => ({
             ...prev,
             currentNetwork: netName,
@@ -77,15 +78,10 @@ export const ConnectButton = () => {
             // sign message using user pk (ECDSA - Elliptic Curve Digital Signature Algorithm)
             const signature = await signer.signMessage(message)
 
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/signature/verify`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ address, message, signature }),
-                },
+            const response = await api_sendSignatureToVerify(
+                address,
+                message,
+                signature,
             )
 
             if (response.ok) {

@@ -1,25 +1,25 @@
 import { CardBody } from "@nextui-org/react"
 
-import { fromsqrtPriceX96ToHumanReadable } from "../../../../libs/uniswapv3/utils/math"
+import { fromsqrtPriceX96ToHumanReadable } from "defi-booster-shared"
 
-export const Price = ({ pool, position }) => {
-    const sqrtPriceX96 = pool.sqrtPriceX96
-
+export const Price = ({
+    sqrtPriceX96,
+    token0Decimals,
+    token1Decimals,
+    token0Symbol,
+    token1Symbol,
+}) => {
     const token0token1Price = `${fromsqrtPriceX96ToHumanReadable(
         sqrtPriceX96,
-        position.token0Decimals,
-        position.token1Decimals,
-    ).token0Token1Price.toFixed(
-        8,
-    )} ${position.token0Symbol}/${position.token1Symbol}`
+        token0Decimals,
+        token1Decimals,
+    ).token0Token1Price.toFixed(8)} ${token0Symbol}/${token1Symbol}`
 
     const token1token0Price = `${fromsqrtPriceX96ToHumanReadable(
         sqrtPriceX96,
-        position.token0Decimals,
-        position.token1Decimals,
-    ).token1Token0Price.toFixed(
-        8,
-    )} ${position.token1Symbol}/${position.token0Symbol}`
+        token0Decimals,
+        token1Decimals,
+    ).token1Token0Price.toFixed(8)} ${token1Symbol}/${token0Symbol}`
 
     return (
         <CardBody>
