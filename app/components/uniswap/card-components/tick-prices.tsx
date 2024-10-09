@@ -1,31 +1,33 @@
 import { CardBody } from "@nextui-org/react"
 
-import { fromTicksToHumanReadablePrice } from "../../../../libs/uniswapv3/utils/math"
+import { fromTicksToHumanReadablePrice } from "defi-booster-shared"
 
-export const TickPrices = ({ pool, position }) => {
+export const TickPrices = ({
+    pool_tick,
+    tickLower,
+    tickUpper,
+    token0Decimals,
+    token1Decimals,
+    token0Symbol,
+    token1Symbol,
+}) => {
     const priceTickLower = `${fromTicksToHumanReadablePrice(
-        Number(position.tickLower),
-        Number(position.token0Decimals),
-        Number(position.token1Decimals),
-    ).token1Token0Price.toFixed(8)} ${position.token1Symbol} / ${
-        position.token0Symbol
-    }`
+        Number(tickLower),
+        Number(token0Decimals),
+        Number(token1Decimals),
+    ).token1Token0Price.toFixed(8)} ${token1Symbol} / ${token0Symbol}`
 
     const priceTickCurrent = `${fromTicksToHumanReadablePrice(
-        Number(pool.tick),
-        Number(position.token0Decimals),
-        Number(position.token1Decimals),
-    ).token1Token0Price.toFixed(8)} ${position.token1Symbol} / ${
-        position.token0Symbol
-    }`
+        Number(pool_tick),
+        Number(token0Decimals),
+        Number(token1Decimals),
+    ).token1Token0Price.toFixed(8)} ${token1Symbol} / ${token0Symbol}`
 
     const priceTickUpper = `${fromTicksToHumanReadablePrice(
-        Number(position.tickUpper),
-        Number(position.token0Decimals),
-        Number(position.token1Decimals),
-    ).token1Token0Price.toFixed(8)} ${position.token1Symbol} / ${
-        position.token0Symbol
-    }`
+        Number(tickUpper),
+        Number(token0Decimals),
+        Number(token1Decimals),
+    ).token1Token0Price.toFixed(8)} ${token1Symbol} / ${token0Symbol}`
 
     return (
         <CardBody>

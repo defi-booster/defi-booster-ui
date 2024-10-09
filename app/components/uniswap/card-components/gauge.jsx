@@ -4,32 +4,35 @@ import ReactECharts from "echarts-for-react"
 
 import { CardBody } from "@nextui-org/react"
 
-import {
-    fromTicksToHumanReadablePrice,
-    isInRange,
-} from "../../../../libs/uniswapv3/utils/math"
+import { fromTicksToHumanReadablePrice, isInRange } from "defi-booster-shared"
 
-export function PositionGauge({ pool, position }) {
+export function PositionGauge({
+    pool_tick,
+    tickLower,
+    tickUpper,
+    token0Decimals,
+    token1Decimals,
+}) {
     const { theme } = useTheme()
 
     const labelColor = theme === "dark" ? "#ECEDEE" : "#11181C"
 
     const priceTickLower = fromTicksToHumanReadablePrice(
-        Number(position.tickLower),
-        Number(position.token0Decimals),
-        Number(position.token1Decimals),
+        Number(tickLower),
+        Number(token0Decimals),
+        Number(token1Decimals),
     ).token1Token0Price
 
     const priceTickCurrent = fromTicksToHumanReadablePrice(
-        Number(pool.tick),
-        Number(position.token0Decimals),
-        Number(position.token1Decimals),
+        Number(pool_tick),
+        Number(token0Decimals),
+        Number(token1Decimals),
     ).token1Token0Price
 
     const priceTickUpper = fromTicksToHumanReadablePrice(
-        Number(position.tickUpper),
-        Number(position.token0Decimals),
-        Number(position.token1Decimals),
+        Number(tickUpper),
+        Number(token0Decimals),
+        Number(token1Decimals),
     ).token1Token0Price
 
     const formatNumber = (value) => {
@@ -44,9 +47,9 @@ export function PositionGauge({ pool, position }) {
     const priceTickUpperFormatted = formatNumber(priceTickUpper)
 
     const inRange = isInRange(
-        Number(position.tickLower),
-        Number(pool.tick),
-        Number(position.tickUpper),
+        Number(tickLower),
+        Number(pool_tick),
+        Number(tickUpper),
     )
 
     let option = {

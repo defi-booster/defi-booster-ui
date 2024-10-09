@@ -1,14 +1,13 @@
 "use client"
 
 import { createContext, useContext, useState } from "react"
-
-import { getNetworkNameFromID } from "../libs/networks_utils"
+import { mapping_idToChain } from "defi-booster-shared"
 
 const Context = createContext()
 
 export function Web3StatesProvider({ children }) {
     const [web3State, setWeb3State] = useState({
-        currentNetwork: getNetworkNameFromID(1), // default Ethereum mainnet
+        currentNetwork: mapping_idToChain[1], // default Ethereum mainnet
     })
 
     return (
