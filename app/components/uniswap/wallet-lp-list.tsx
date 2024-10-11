@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useWeb3ModalAccount } from "@web3modal/ethers/react"
 import { Button, Card, Divider, Spinner } from "@nextui-org/react"
@@ -26,12 +27,31 @@ export function WalletLPList({ network }) {
     // web3 hooks
     const { address, chainId } = useWeb3ModalAccount()
 
-    const { loading, error, data } = useQuery(GET_V3_POSITIONS, {
+    // states
+    const [positions, setPositions] = useState([])
+
+    const { loading, error, data, refetch } = useQuery(GET_V3_POSITIONS, {
         variables: {
             chainId: chainId,
             address: address,
         },
     })
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            refetch().then((result) => {
+                setPositions(result.data.getV3Positions)
+            })
+        }, 60000)
+
+        return () => clearInterval(intervalId)
+    }, [])
+
+    useEffect(() => {
+        if (!loading) {
+            setPositions(data.getV3Positions)
+        }
+    }, [data])
 
     // wait untill all needed data are fetched
     if (loading)
@@ -91,19 +111,9 @@ export function WalletLPList({ network }) {
         )
     }
 
-    const goToDetails = (
-        tokenId: string,
-        token0Decimals: string,
-        token1Decimals: string,
-        token0Symbol: string,
-        token1Symbol: string,
-    ) => {
-        router.push(
-            `/uniswapv3/${tokenId}?token0Symbol=${token0Symbol}&token0Decimals=${token0Decimals}&token1Symbol=${token1Symbol}&token1Decimals=${token1Decimals}`,
-        )
+    const goToDetails = (tokenId: string) => {
+        router.push(`/uniswapv3/${tokenId}`)
     }
-
-    const positions = data.getV3Positions
 
     return (
         <div
@@ -203,17 +213,7 @@ export function WalletLPList({ network }) {
                         token0Decimals={position.token0Decimals}
                         token1Decimals={position.token1Decimals}
                     />
-                    <Button
-                        onClick={() =>
-                            goToDetails(
-                                position.tokenId,
-                                position.token0Decimals,
-                                position.token1Decimals,
-                                position.token0Symbol,
-                                position.token1Symbol,
-                            )
-                        }
-                    >
+                    <Button onClick={() => goToDetails(position.tokenId)}>
                         view position details
                     </Button>
                 </Card>

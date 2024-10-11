@@ -14,6 +14,8 @@ export const GET_V3_POSITIONS = gql`
             tickUpper
             feeGrowthInsideLastX128_0
             feeGrowthInsideLastX128_1
+            token0Address
+            token1Address
             poolInfo {
                 sqrtPriceX96
                 tick
