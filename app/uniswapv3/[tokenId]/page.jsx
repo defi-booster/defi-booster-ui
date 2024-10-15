@@ -242,13 +242,6 @@ export default function DetailsPage({ params }) {
 
     // calculate metrics
     useEffect(() => {
-        console.log("position.length: ", position.length)
-        console.log("data_livecycle: ", data_livecycle)
-        console.log("loading_livecycle: ", loading_livecycle)
-        console.log("loading_position: ", loading_position)
-        console.log("ethPrice: ", ethPrice)
-        console.log("token0Price: ", token0Price)
-        console.log("token1Price: ", token1Price)
         if (
             position.length > 0 &&
             data_livecycle !== undefined &&
@@ -361,55 +354,6 @@ export default function DetailsPage({ params }) {
             </div>
         )
 
-    // testing data - uncomment if you don;t want to trigger backend
-    // let data_livecycle = { getV3PositionLivecycle: [] }
-    // data_livecycle.getV3PositionLivecycle = [
-    //     {
-    //         __typename: "UniswapV3Livecycle",
-    //         livecycleEvent: "MINT",
-    //         blockNumber: "20142767",
-    //         txHash: "0x2d72b47b3e4799034747005f573e6f42572d23de015a9d34bb204db900bcf0fa",
-    //         date: "9/23/2024, 9:01:21 AM",
-    //         tokenId: "971116",
-    //         amount0: "999999985579958",
-    //         amount1: "558019",
-    //         feePaid: "1952255648619",
-    //     },
-    //     {
-    //         __typename: "UniswapV3Livecycle",
-    //         livecycleEvent: "INCREASE",
-    //         blockNumber: "20142954",
-    //         txHash: "0xb6429846fe8385d8168d1efa68419897959e2d7bdc941574ac13e2efd8a53e8a",
-    //         date: "9/23/2024, 9:07:35 AM",
-    //         tokenId: "971116",
-    //         amount0: "1999999202623825",
-    //         amount1: "0",
-    //         feePaid: "929543422572",
-    //     },
-    //     {
-    //         __typename: "UniswapV3Livecycle",
-    //         livecycleEvent: "DECREASE",
-    //         blockNumber: "20143089",
-    //         txHash: "0x4fc085513e28f2b21a227e7f65c24c878027c2c23ce4ea924f77e7617b9b6dfc",
-    //         date: "9/23/2024, 9:12:05 AM",
-    //         tokenId: "971116",
-    //         amount0: "1605089616122061",
-    //         amount1: "0",
-    //         feePaid: "1144772562024",
-    //     },
-    //     {
-    //         __typename: "UniswapV3Livecycle",
-    //         livecycleEvent: "COLLECT_FEES",
-    //         blockNumber: "20143089",
-    //         txHash: "0x4fc085513e28f2b21a227e7f65c24c878027c2c23ce4ea924f77e7617b9b6dfc",
-    //         date: "9/23/2024, 9:12:05 AM",
-    //         tokenId: "971116",
-    //         amount0: "1605281110099976",
-    //         amount1: "229",
-    //         feePaid: "1144772562024",
-    //     },
-    // ]
-
     if (data_livecycle.getV3PositionLivecycle.length === 0) {
         return (
             <div className={styles.error_div}>
@@ -429,44 +373,6 @@ export default function DetailsPage({ params }) {
             </div>
         )
     }
-
-    // sort by datetime
-    const sortedLivecycle = [...data_livecycle.getV3PositionLivecycle].sort(
-        (a, b) => {
-            const parseDate = (dateString) => {
-                const [datePart, timePart] = dateString.split(", ")
-                const [day, month, year] = datePart.split("/")
-                return new Date(`${month}/${day}/${year} ${timePart}`)
-            }
-
-            const dateA = parseDate(a.date)
-            const dateB = parseDate(b.date)
-
-            return dateA - dateB
-        },
-    )
-
-    // if collect is precede by decrease - then we need to subtract decrease amount to get only fees
-    const livecycle = sortedLivecycle.map((item, idx) => {
-        if (
-            item.livecycleEvent === ELivecycleEvents.COLLECT_FEES &&
-            idx > 0 &&
-            sortedLivecycle[idx - 1].livecycleEvent ===
-                ELivecycleEvents.DECREASE
-        ) {
-            return {
-                ...item,
-                amount0:
-                    BigInt(item.amount0) -
-                    BigInt(sortedLivecycle[idx - 1].amount0),
-                amount1:
-                    BigInt(item.amount1) -
-                    BigInt(sortedLivecycle[idx - 1].amount1),
-            }
-        }
-
-        return item
-    })
 
     const emoji = {
         MINT: "🔨",
@@ -512,7 +418,7 @@ export default function DetailsPage({ params }) {
         <div className={styles.livecycle}>
             <p>tokenId: {tokenId} position details</p>
             <Timeline position="alternate" className={styles.timeline}>
-                {livecycle.map((item, idx) => {
+                {data_livecycle.getV3PositionLivecycle.map((item, idx) => {
                     return (
                         <TimelineItem key={idx}>
                             <TimelineOppositeContent
@@ -526,7 +432,10 @@ export default function DetailsPage({ params }) {
                                 <TimelineDot
                                     color={idx % 2 ? "secondary" : "success"}
                                 />
-                                {idx < livecycle.length - 1 && (
+                                {idx <
+                                    data_livecycle.getV3PositionLivecycle
+                                        .length -
+                                        1 && (
                                     <TimelineConnector
                                         sx={{ height: "10vh" }}
                                     />
