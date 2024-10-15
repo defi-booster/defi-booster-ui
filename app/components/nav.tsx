@@ -101,6 +101,11 @@ export const Nav = () => {
                 pointerEvents: "none",
             },
         },
+        {
+            name: "change mode",
+            description: "",
+            icon: <ThemeSwitcher />,
+        },
     ]
 
     useEffect(() => {
@@ -224,15 +229,15 @@ export const Nav = () => {
             </NavbarContent>
 
             <NavbarContent justify="end">
-                <NavbarItem className="hidden lg:flex">
+                <NavbarItem>
                     <ConnectButton />
                 </NavbarItem>
-                <NavbarItem>
+                <NavbarItem className="hidden lg:flex">
                     <Tooltip content={web3State.currentNetwork}>
                         {chainIdToIcon(chainId)}
                     </Tooltip>
                 </NavbarItem>
-                <NavbarItem>
+                <NavbarItem className="hidden lg:flex">
                     <ThemeSwitcher />
                 </NavbarItem>
             </NavbarContent>
