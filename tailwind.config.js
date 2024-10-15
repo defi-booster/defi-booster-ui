@@ -19,6 +19,10 @@ module.exports = {
                             DEFAULT: "#FFFFFF",
                             foreground: "#000000",
                         },
+                        secondary: {
+                            DEFAULT: "#BEF264",
+                            foreground: "#000000",
+                        },
                         danger: "#D40000",
                         success: {
                             DEFAULT: "#BEF264",
@@ -31,8 +35,11 @@ module.exports = {
                 light: {
                     colors: {
                         primary: {
-                            // DEFAULT: "#D40000",
                             DEFAULT: "#000000",
+                            foreground: "#000000",
+                        },
+                        secondary: {
+                            DEFAULT: "#BEF264",
                             foreground: "#000000",
                         },
                         danger: "#D40000",

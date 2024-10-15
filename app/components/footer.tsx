@@ -1,12 +1,4 @@
 "use client"
-import { Link } from "@nextui-org/react"
-import {
-    FaDiscord,
-    FaInstagram,
-    FaTwitter,
-    FaGithub,
-    FaBook,
-} from "react-icons/fa"
 import React, { useEffect, useState } from "react"
 import { useTheme } from "next-themes"
 import defiBoosterDark from "./images/defi_booster_dark.svg"
@@ -40,37 +32,6 @@ export const Footer = () => {
                     }
                 />
                 <p>&copy; 2024 DeFi Booster</p>
-            </div>
-            <div className={styles.footer_media}>
-                community
-                <div>
-                    <Link>
-                        <FaDiscord size={16} />
-                    </Link>
-                </div>
-                <div>
-                    <Link>
-                        <FaInstagram size={16} />
-                    </Link>
-                </div>
-                <div>
-                    <Link>
-                        <FaTwitter size={16} />
-                    </Link>
-                </div>
-            </div>
-            <div className={styles.footer_code_and_docs}>
-                code and documentation
-                <div>
-                    <Link>
-                        <FaGithub size={16} />
-                    </Link>
-                </div>
-                <div>
-                    <Link>
-                        <FaBook size={16} />
-                    </Link>
-                </div>
             </div>
         </div>
     )

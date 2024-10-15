@@ -5,19 +5,6 @@
     padding: 15px;
 }
 
-.footer_media {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-}
-.footer_media div {
-    display: flex;
-}
-.footer_media div a {
-    cursor: pointer;
-    padding-left: 25px;
-}
 .footer_copy p {
     margin-left: 20px;
 }
@@ -30,20 +17,6 @@
 .footer_copy img {
     width: 30px;
     height: 30px;
-}
-.footer_code_and_docs {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.footer_code_and_docs div {
-    display: flex;
-}
-.footer_code_and_docs div a {
-    cursor: pointer;
-    padding-left: 25px;
 }
 
 @media (max-width: 768px) {

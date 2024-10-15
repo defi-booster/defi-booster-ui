@@ -237,7 +237,7 @@ export const Nav = () => {
                         {chainIdToIcon(chainId)}
                     </Tooltip>
                 </NavbarItem>
-                <NavbarItem className="hidden lg:flex">
+                <NavbarItem>
                     <ThemeSwitcher />
                 </NavbarItem>
             </NavbarContent>

@@ -1,64 +1,133 @@
 .main_container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .main_container div p {
     text-align: center;
 }
 
-.image_container {
+.title {
+    font-size: 40px;
+    text-align: center;
+    margin: 10vh;
+}
+
+.logo {
+    width: 60px;
+    height: 60px;
+    border: 1px solid white;
+    border-radius: 50%;
+}
+
+.section_1 {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    position: relative;
-    height: 300px;
+    margin: 15vh auto;
 }
 
-.image {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    transition: transform 0.3s ease;
+.section_1 .sub_description {
+    font-size: 18px;
 }
 
-.image_1 {
-    transform: rotate(-10deg);
-    z-index: 1;
+.section_1 .main_text_dark {
+    font-size: 32px;
+    color: #bef264;
+    margin-bottom: 5vh;
+    font-weight: bold;
 }
 
-.image_2 {
-    transform: rotate(5deg);
-    z-index: 2;
+.section_1 .main_text_light {
+    font-size: 32px;
+    color: #d40000;
+    margin-bottom: 5vh;
+    font-weight: bold;
 }
 
-.image_3 {
-    transform: rotate(-7deg);
-    z-index: 3;
+.networks {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
-@media (max-width: 768px) {
-    .main_container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100vh;
+.networks div .icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 30px auto;
+}
+
+.social {
+    margin-top: 10vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.social_links {
+    display: flex;
+    flex-direction: row;
+}
+
+.social .social_links div {
+    margin: 30px;
+    cursor: pointer;
+}
+
+@media (max-width: 820px) {
+    .section_1 .main_text_dark {
+        font-size: 24px;
     }
 
-    .image_container {
+    .section_1 .main_text_light {
+        font-size: 24px;
+    }
+
+    .section_1 {
+        margin: 15vh 3vw;
+    }
+}
+
+@media (max-width: 400px) {
+    .section_1 .sub_description {
+        font-size: 16px;
+    }
+    .networks {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .networks div {
+        margin-right: 8px;
+    }
+
+    .networks div .icons {
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        position: relative;
-        height: 300px;
+        margin: 30px auto;
     }
 
-    .image {
-        width: 100px;
-        height: 100px;
+    .social {
+        margin-top: 10vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .social_links {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .social .social_links div {
+        margin: 10px;
     }
 }
